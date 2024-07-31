@@ -10,6 +10,8 @@ return {
 			{ "<leader>d_", hidden = true },
 			{ "<leader>wf", group = "[F]ile Tree" },
 			{ "<leader>wf_", hidden = true },
+			{ "<leader>p", group = "[P]aperwork" },
+			{ "<leader>p_", hidden = true },
 			{ "<leader>r", group = "[R]ename" },
 			{ "<leader>r_", hidden = true },
 			{ "<leader>s", group = "[S]earch" },

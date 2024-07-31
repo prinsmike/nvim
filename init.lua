@@ -29,6 +29,7 @@ vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.bo.softtabstop = 2
 vim.opt.expandtab = false
+vim.opt.spelllang = 'en_gb'
 
 -- ## keymaps
 
@@ -55,6 +56,8 @@ vim.keymap.set("n", "<leader>tv", "<cmd>vsp | term<CR>", { desc = "Open [T]ermin
 vim.keymap.set("n", "<leader>tt", "<cmd>tabnew | term<CR>", { desc = "Open [T]erminal in [T]ab" })
 vim.keymap.set("n", "<leader>wp", "<cmd>tabprev<CR>", { desc = "Move focus to previous tab" })
 vim.keymap.set("n", "<leader>wn", "<cmd>tabnext<CR>", { desc = "Move focus to next tab" })
+-- Set up a key mapping to toggle spell checking
+vim.keymap.set("n", "<leader>ps", ":set spell!<CR>", { desc = "Toggle spell check" })
 
 -- ## autocommands
 
