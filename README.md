@@ -1,6 +1,6 @@
 # prinsmike's Neovim Configuration
 
-This repository contains my personal Neovim configuration, designed to enhance the Neovim editing experience with a curated selection of plugins and custom settings.
+This repository contains a customized Neovim setup, crafted to enhance the editing experience with a carefully curated selection of plugins and tailored settings. It's designed to provide a powerful, efficient, and user-friendly environment for coding and text editing.
 
 ## Structure
 
