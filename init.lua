@@ -168,10 +168,10 @@ require("lazy").setup({
 })
 
 -- Load Avante library
-require('avante_lib').load()
+require("avante_lib").load()
 
 -- Configure Avante
-require('avante').setup({
+require("avante").setup({
 	-- Your config here
 	provider = "claude", -- Recommended to use Claude
 	claude = {
