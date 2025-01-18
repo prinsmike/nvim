@@ -109,7 +109,8 @@ require("lazy").setup({
 	require("prinsmike.plugins.nvim-tree"),
 	require("prinsmike.plugins.nvim-autopairs"),
 	require("prinsmike.plugins.indent-blankline"),
-	require("prinsmike.plugins.avante"), -- Added Avante plugin configuration
+	require("prinsmike.plugins.avante"),
+	require("prinsmike.plugins.claude"),
 }, {
 	ui = {
 		icons = vim.g.have_nerd_font and {} or {
