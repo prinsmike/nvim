@@ -4,6 +4,10 @@ return {
 	config = function()
 		require("which-key").setup()
 		require("which-key").add({
+			{ "<leader>a", group = "[A]I" },
+			{ "<leader>a_", hidden = true },
+			{ "<leader>ac", group = "[C]laude" },
+			{ "<leader>ac_", hidden = true },
 			{ "<leader>c", group = "[C]ode" },
 			{ "<leader>c_", hidden = true },
 			{ "<leader>d", group = "[D]ebugging" },
