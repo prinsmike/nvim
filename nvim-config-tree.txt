@@ -1,0 +1,31 @@
+.
+├── init.lua
+├── lazy-lock.json
+├── lua
+│   └── prinsmike
+│       ├── configs
+│       │   └── nvim-tree.lua
+│       └── plugins
+│           ├── avante.lua
+│           ├── conform.lua
+│           ├── gitsigns.lua
+│           ├── indent-blankline.lua
+│           ├── mini.lua
+│           ├── nvim-autopairs.lua
+│           ├── nvim-cmp.lua
+│           ├── nvim-dap.lua
+│           ├── nvim-lspconfig.lua
+│           ├── nvim-tree.lua
+│           ├── telescope.lua
+│           ├── todo-comments.lua
+│           ├── tokyonight.lua
+│           ├── treesitter.lua
+│           └── which-key.lua
+├── README.md
+├── spell
+│   ├── en.utf-8.add
+│   └── en.utf-8.add.spl
+├── tree.sh
+└── tree.txt
+
+6 directories, 23 files
