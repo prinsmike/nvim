@@ -1,0 +1,43 @@
+{
+	"_comment": "This file contains suggested hooks for Claude Code settings.",
+	"_comment2": "Copy the desired hooks to your Claude Code settings file.",
+	"_comment3": "On Linux: ~/.config/claude-code/config.json",
+	"_comment4": "On macOS: ~/Library/Application Support/claude-code/config.json",
+
+	"hooks": {
+		"afterWrite": [
+			{
+				"name": "Format Lua files with stylua",
+				"description": "Auto-format Lua files using stylua after Claude writes them",
+				"pattern": "**/*.lua",
+				"command": "stylua --indent-type Tabs --indent-width 2 '${filePath}'",
+				"enabled": false,
+				"_note": "Requires stylua to be installed: cargo install stylua or via Mason in Neovim"
+			},
+			{
+				"name": "Validate CHANGELOG format",
+				"description": "Check that CHANGELOG.md has an [Unreleased] section",
+				"pattern": "**/CHANGELOG.md",
+				"command": "grep -q '\\[Unreleased\\]' '${filePath}' || (echo 'Warning: CHANGELOG.md missing [Unreleased] section' && exit 1)",
+				"enabled": false
+			}
+		],
+
+		"beforeCommit": [
+			{
+				"name": "Check for TODO comments",
+				"description": "Warn if committing files with TODO/FIXME/HACK comments",
+				"command": "git diff --cached | grep -i 'TODO\\|FIXME\\|HACK' && echo 'Warning: Committing files with TODO/FIXME/HACK comments' || true",
+				"enabled": false
+			}
+		]
+	},
+
+	"_notes": [
+		"Hooks run automatically when certain events occur",
+		"Available events: afterWrite, beforeCommit, afterRead",
+		"Set 'enabled: true' to activate a hook",
+		"Use ${filePath} to reference the file being operated on",
+		"Hooks can prevent operations by exiting with non-zero status"
+	]
+}
