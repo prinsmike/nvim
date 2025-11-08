@@ -1,51 +1,246 @@
 # prinsmike's Neovim Configuration
 
-This repository contains a customized Neovim setup, crafted to enhance the editing experience with a carefully curated selection of plugins and tailored settings. It's designed to provide a powerful, efficient, and user-friendly environment for coding and text editing.
-
-## Structure
-
-The configuration is organized as follows:
-
-- `init.lua`: The main configuration file that Neovim loads on startup.
-- `lazy-lock.json`: Lock file for the Lazy plugin manager.
-- `lua/prinsmike/`: Directory containing custom Lua modules.
-  - `configs/`: Specific configurations for plugins.
-  - `plugins/`: Plugin definitions and settings.
+A modular Neovim configuration built with [lazy.nvim](https://github.com/folke/lazy.nvim), featuring LSP support, code formatting, fuzzy finding, and git integration.
 
 ## Features
 
-This Neovim configuration includes the following plugins and features:
+- **Plugin Manager**: lazy.nvim with lockfile for reproducible installs
+- **LSP Support**: Automatic language server installation via Mason
+  - Go (gopls)
+  - Python (pyright)
+  - Rust (rust_analyzer)
+  - Lua (lua_ls)
+- **Code Formatting**: Format-on-save with conform.nvim
+- **Fuzzy Finding**: Telescope for files, grep, buffers, and config navigation
+- **Syntax Highlighting**: Treesitter with auto-installed parsers
+- **Git Integration**: Gitsigns for inline git status and blame
+- **Completion**: nvim-cmp with LSP, buffer, and path sources
+- **File Explorer**: nvim-tree
+- **UI Enhancements**: which-key, indent-blankline, mini.nvim suite
+- **Color Scheme**: Tokyo Night
 
-1. File Explorer: nvim-tree
-2. Git Integration: gitsigns
-3. Indentation Guides: indent-blankline
-4. Autopairs: nvim-autopairs
-5. Completion: nvim-cmp
-6. Debugging: nvim-dap
-7. LSP Configuration: nvim-lspconfig
-8. Fuzzy Finder: telescope
-9. TODO Comments: todo-comments
-10. Color Scheme: tokyonight
-11. Syntax Highlighting: treesitter
-12. Keybinding Helper: which-key
-13. Code Formatting: conform
-14. Miniature Plugins: mini
+## Prerequisites
+
+- Neovim 0.9.0+ (required for lazy.nvim)
+- Git
+- A Nerd Font (for icons)
+- ripgrep (for Telescope live grep)
+- A C compiler (for Treesitter parsers)
 
 ## Installation
 
-1. Backup your existing Neovim configuration if you have one.
-2. Clone this repository into your Neovim configuration directory:
+1. **Backup** your existing Neovim configuration:
+   ```bash
+   mv ~/.config/nvim ~/.config/nvim.backup
+   mv ~/.local/share/nvim ~/.local/share/nvim.backup
    ```
-   git clone https://github.com/yourusername/neovim-config.git ~/.config/nvim
+
+2. **Clone** this repository:
+   ```bash
+   git clone https://github.com/prinsmike/nvim.git ~/.config/nvim
    ```
-3. Ensure you have Neovim 0.5+ installed.
-4. Launch Neovim. The plugin manager should automatically install the required plugins.
+
+3. **Launch** Neovim:
+   ```bash
+   nvim
+   ```
+
+   Lazy.nvim will automatically install all plugins. Mason will then install the configured LSP servers and tools.
+
+4. **Restart** Neovim once installation completes.
+
+## Configuration Structure
+
+```
+init.lua                      # Main entry point: options, keymaps, autocommands
+lazy-lock.json               # Plugin version lockfile
+lua/prinsmike/
+  plugins/                   # Plugin definitions (each file returns a lazy.nvim spec)
+    nvim-lspconfig.lua      # LSP configuration with Mason integration
+    conform.lua             # Code formatting setup
+    telescope.lua           # Fuzzy finder configuration
+    treesitter.lua          # Syntax highlighting
+    gitsigns.lua            # Git integration
+    nvim-cmp.lua            # Completion engine
+    nvim-tree.lua           # File explorer
+    which-key.lua           # Keybinding helper
+    [others]                # Additional plugins
+  configs/
+    nvim-tree.lua           # Extended nvim-tree configuration
+```
+
+## Updating
+
+### Update All Plugins
+
+```vim
+:Lazy update
+```
+
+This updates all plugins to their latest versions and updates the lockfile.
+
+### Update Mason Tools
+
+```vim
+:MasonUpdate
+```
+
+Updates all installed LSP servers, formatters, and linters.
+
+### Update Treesitter Parsers
+
+```vim
+:TSUpdate
+```
+
+Updates all installed Treesitter parsers to the latest versions.
+
+### Restore from Lockfile
+
+To restore exact plugin versions from `lazy-lock.json`:
+
+```vim
+:Lazy restore
+```
+
+## Plugin Management
+
+### View Plugin Status
+
+```vim
+:Lazy
+```
+
+Opens the Lazy.nvim UI showing installed plugins, their status, and available updates.
+
+### Clean Unused Plugins
+
+```vim
+:Lazy clean
+```
+
+Removes plugins that are no longer specified in the configuration.
+
+### Install Specific Tools
+
+```vim
+:Mason
+```
+
+Opens the Mason UI where you can interactively install LSP servers, formatters, and linters.
+
+To install a specific tool:
+
+```vim
+:MasonInstall stylua
+```
+
+## Key Bindings
+
+**Leader key**: `Space`
+
+### File Navigation
+
+| Key | Action |
+|-----|--------|
+| `<leader>sf` | Search files (Telescope) |
+| `<leader>sg` | Live grep (search content in files) |
+| `<leader>sn` | Search Neovim config files |
+| `<leader><leader>` | Find open buffers |
+| `<leader>sh` | Search help tags |
+| `<leader>sk` | Search keymaps |
+
+### LSP
+
+| Key | Action |
+|-----|--------|
+| `gd` | Go to definition |
+| `gr` | Go to references |
+| `gI` | Go to implementation |
+| `gD` | Go to declaration |
+| `K` | Hover documentation |
+| `<leader>rn` | Rename symbol |
+| `<leader>ca` | Code action |
+| `<leader>f` | Format buffer |
+
+### Terminal
+
+| Key | Action |
+|-----|--------|
+| `<leader>ts` | Open terminal in horizontal split |
+| `<leader>tv` | Open terminal in vertical split |
+| `<leader>tt` | Open terminal in new tab |
+
+### File Explorer
+
+| Key | Action |
+|-----|--------|
+| `<C-n>` | Toggle nvim-tree |
+
+For more keybindings, press `<leader>` in normal mode to see which-key suggestions.
 
 ## Customization
 
-To customize this configuration:
+### Adding a New Plugin
 
-1. Modify `init.lua` for global settings.
-2. Add or modify plugin configurations in `lua/prinsmike/plugins/`.
-3. Adjust specific plugin settings in `lua/prinsmike/configs/`.
+1. Create a new file in `lua/prinsmike/plugins/<plugin-name>.lua`
+2. Return a lazy.nvim spec table:
+   ```lua
+   return {
+     "author/plugin-name",
+     config = function()
+       -- Plugin configuration
+     end,
+   }
+   ```
+3. Add the require statement in `init.lua` (lines 96-111)
+4. Restart Neovim or run `:Lazy reload`
 
+### Adding a New LSP Server
+
+1. Open `lua/prinsmike/plugins/nvim-lspconfig.lua`
+2. Add the server name to the `servers` table (line 77-92)
+3. Restart Neovim - Mason will automatically install and configure it
+
+### Adding a New Formatter
+
+1. Open `lua/prinsmike/plugins/conform.lua`
+2. Add the formatter to `formatters_by_ft` (lines 23-25)
+3. Install the formatter via Mason: `:MasonInstall <formatter-name>`
+
+### Modifying Settings
+
+- **Global Neovim settings**: Edit `init.lua` (lines 1-47)
+- **Plugin-specific settings**: Edit the corresponding file in `lua/prinsmike/plugins/`
+- **Extended plugin configs**: Add/modify files in `lua/prinsmike/configs/`
+
+## Code Style
+
+This configuration uses:
+- **Indentation**: Tabs (not spaces)
+- **Tab width**: 2 spaces
+- **Spell check**: Enabled for markdown files (British English)
+
+## Troubleshooting
+
+### LSP Not Working
+
+1. Check if the server is installed: `:Mason`
+2. Check LSP status: `:LspInfo`
+3. Restart the LSP: `:LspRestart`
+
+### Treesitter Errors
+
+1. Update parsers: `:TSUpdate`
+2. Reinstall specific parser: `:TSInstall <language>`
+3. Check parser status: `:TSInstallInfo`
+
+### Plugin Issues
+
+1. Update plugins: `:Lazy update`
+2. Clean and reinstall: `:Lazy clean` then restart Neovim
+3. Check for errors: `:Lazy log`
+
+## License
+
+Personal configuration - feel free to use and modify as needed.
