@@ -12,13 +12,15 @@ This is a personal Neovim configuration built with lazy.nvim as the plugin manag
 
 - **Plugin Manager**: lazy.nvim (auto-installed if not present)
 - **Plugin Location**: All plugins are defined in `lua/prinsmike/plugins/*.lua` as separate modules
-- **Loading**: Each plugin file returns a lazy.nvim spec table that gets required in `init.lua:96-111`
-- **Lock File**: `lazy-lock.json` pins exact plugin versions
+- **Loading**: Each plugin file returns a lazy.nvim spec table that gets required in `init.lua:96-112`
+- **Lock File**: `lazy-lock.json` pins exact plugin versions (not tracked in git)
 
 ### Configuration Structure
 
 ```
 init.lua                      # Main entry point: vim options, keymaps, autocommands, lazy.nvim setup
+CHANGELOG.md                  # Project changelog (Keep a Changelog format)
+README.md                     # Project documentation
 lua/prinsmike/
   plugins/                    # Plugin definitions (each file returns a lazy.nvim spec)
     nvim-lspconfig.lua       # LSP setup with Mason for server management
@@ -29,10 +31,18 @@ lua/prinsmike/
     nvim-cmp.lua             # Completion engine
     nvim-tree.lua            # File explorer
     which-key.lua            # Keybinding helper
-    [others]                 # Additional plugins
+    tokyonight.lua           # Tokyo Night colorscheme
+    todo-comments.lua        # Highlight and search TODO/FIXME comments
+    mini.lua                 # Collection of minimal plugins (mini.nvim)
+    nvim-autopairs.lua       # Auto-close brackets, quotes, etc.
+    indent-blankline.lua     # Indentation guides
   configs/
     nvim-tree.lua            # Specific configuration for nvim-tree
 ```
+
+**Note**: Some simple plugins are defined inline in `init.lua` (lines 97-98):
+- `vim-sleuth` - Automatic indent detection
+- `Comment.nvim` - Commenting functionality
 
 ### LSP Configuration
 
@@ -131,8 +141,18 @@ Add new formatters to `formatters_by_ft` in conform.lua:23-25.
 
 1. Create a new file in `lua/prinsmike/plugins/<plugin-name>.lua`
 2. Return a lazy.nvim spec table with plugin configuration
-3. Add `require("prinsmike.plugins.<plugin-name>")` to the setup table in `init.lua:96-111`
+3. Add `require("prinsmike.plugins.<plugin-name>")` to the setup table in `init.lua:96-112`
 4. Restart Neovim or run `:Lazy reload`
+5. Add entry to CHANGELOG.md under `[Unreleased]` section
+
+### Changelog Management
+
+This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html):
+
+- All notable changes should be added to the `[Unreleased]` section in CHANGELOG.md
+- Use categories: Added, Changed, Deprecated, Removed, Fixed, Security
+- When ready to release a new version, move unreleased changes to a new version section with the release date
+- Create an annotated git tag for the release: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
 
 ### LSP Keybindings
 
