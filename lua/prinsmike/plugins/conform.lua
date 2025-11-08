@@ -22,6 +22,9 @@ return { -- Autoformat
 		end,
 		formatters_by_ft = {
 			lua = { "stylua" },
+			go = { "goimports", "gofumpt" },
+			python = { "black" },
+			rust = { "rustfmt" },
 		},
 	},
 }

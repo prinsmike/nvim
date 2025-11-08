@@ -175,7 +175,8 @@ To install a specific tool:
 
 | Key | Action |
 |-----|--------|
-| `<C-n>` | Toggle nvim-tree |
+| `<leader>wft` | Toggle nvim-tree |
+| `<leader>wff` | Focus nvim-tree |
 
 For more keybindings, press `<leader>` in normal mode to see which-key suggestions.
 
