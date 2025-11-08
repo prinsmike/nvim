@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-11-08
+
+### Added
+
+- Added claudecode.nvim plugin for Neovim integration with Claude Code
+- Added snacks.nvim dependency for terminal support
+
 ## [0.1.0] - 2025-11-08
 
 Initial release of personal Neovim configuration.
@@ -44,5 +51,6 @@ Initial release of personal Neovim configuration.
 
 - Project tree structure improvements
 
-[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/prinsmike/nvim/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/prinsmike/nvim/releases/tag/v0.1.0
