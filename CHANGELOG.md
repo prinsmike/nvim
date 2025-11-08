@@ -1,0 +1,48 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.1.0] - 2025-11-08
+
+Initial release of personal Neovim configuration.
+
+### Added
+
+- Added CLAUDE.md for Claude Code project-specific instructions
+- Added spell check configuration (British English for markdown files)
+- Added live grep through hidden files in Telescope
+- Added .gitignore file
+- Initial Neovim configuration with lazy.nvim
+- LSP configuration with Mason for server management
+- Formatting with conform.nvim (format-on-save enabled)
+- Telescope fuzzy finder with extensive keybindings
+- Treesitter syntax highlighting
+- Git integration with gitsigns
+- Completion engine with nvim-cmp
+- File explorer with nvim-tree
+- Keybinding helper with which-key
+
+### Changed
+
+- Improved keybindings for changing window size
+- Reconfigured which-key for v3 compatibility
+- Refactored gitsigns configuration
+- Improved README introduction and documentation
+- Stopped tracking lazy-lock.json
+- Various small fixes and improvements
+
+### Removed
+
+- Removed outdated AI plugins (claude.vim and avante)
+
+### Fixed
+
+- Project tree structure improvements
+
+[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/prinsmike/nvim/releases/tag/v0.1.0
