@@ -6,7 +6,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.g.have_nerd_font = true
 vim.opt.number = true
-vim.opt.mouse = "a" -- vim.opt.relativenumber = true
+vim.opt.mouse = "a"
 vim.opt.showmode = false
 vim.opt.clipboard = "unnamedplus"
 vim.opt.breakindent = true
@@ -16,7 +16,6 @@ vim.opt.smartcase = true
 vim.opt.signcolumn = "yes"
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300 -- Displays which-key popup sooner
--- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.list = true --  See `:help 'list'` and `:help 'listchars'`
@@ -56,13 +55,9 @@ vim.keymap.set("n", "<leader>tv", "<cmd>vsp | term<CR>", { desc = "Open [T]ermin
 vim.keymap.set("n", "<leader>tt", "<cmd>tabnew | term<CR>", { desc = "Open [T]erminal in [T]ab" })
 vim.keymap.set("n", "<leader>wp", "<cmd>tabprev<CR>", { desc = "Move focus to previous tab" })
 vim.keymap.set("n", "<leader>wn", "<cmd>tabnext<CR>", { desc = "Move focus to next tab" })
--- Set up a key mapping to toggle spell checking
 vim.keymap.set("n", "<leader>ps", ":set spell!<CR>", { desc = "Toggle spell check" })
 
--- ## autocommands
-
 -- ### Set up spell checking for markdown files with British English
-
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = "markdown",
 	callback = function()
@@ -72,7 +67,6 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- ### Highlight when yanking text
-
 vim.api.nvim_create_autocmd("TextYankPost", {
 	desc = "Highlight when yanking text",
 	group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
@@ -81,9 +75,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
--- lazy.nvim
-
--- ### Install lazy.nvim plugin manager.
+-- Install lazy.nvim plugin manager.
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -92,7 +84,6 @@ end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 -- Install and configure plugins
-
 require("lazy").setup({
 	"tpope/vim-sleuth",
 	{ "numToStr/Comment.nvim", opts = {} },

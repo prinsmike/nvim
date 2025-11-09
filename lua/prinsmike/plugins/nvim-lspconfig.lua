@@ -75,7 +75,6 @@ return { -- LSP Configuration & Plugins
 
 		-- Enable the following language servers
 		local servers = {
-			-- clangd = {},
 			gopls = {},
 			pyright = {},
 			rust_analyzer = {},
@@ -85,6 +84,18 @@ return { -- LSP Configuration & Plugins
 					Lua = {
 						completion = {
 							callSnippet = "Replace",
+						},
+						workspace = {
+							-- Make the language server aware of the Neovim runtime files
+							library = {
+								[vim.fn.expand("$VIMRUNTIME/lua")] = true,
+								[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
+							},
+							checkThirdParty = false,
+						},
+						diagnostics = {
+							-- Add "vim" as a global to avoid undefined global warnings
+							globals = { "vim" },
 						},
 					},
 				},
