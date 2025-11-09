@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added custom minimal colorscheme based on principles from https://tonsky.me/blog/syntax-highlighting/
+  - Uses only 5 strategic colors (green for strings/numbers, purple for constants, yellow for comments, blue for top-level definitions, gray for punctuation)
+  - Avoids over-highlighting by not coloring keywords, variables, or function calls
+  - Makes comments prominent with bold yellow instead of graying them out
+
+### Removed
+
+- Removed Tokyo Night colorscheme in favor of custom minimal theme
+
 ## [0.3.0] - 2025-11-08
 
 ### Added

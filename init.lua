@@ -102,7 +102,7 @@ require("lazy").setup({
 	require("prinsmike.plugins.nvim-lspconfig"),
 	require("prinsmike.plugins.conform"),
 	require("prinsmike.plugins.nvim-cmp"),
-	require("prinsmike.plugins.tokyonight"),
+	require("prinsmike.plugins.minimal"),
 	require("prinsmike.plugins.todo-comments"),
 	require("prinsmike.plugins.mini"),
 	require("prinsmike.plugins.treesitter"),
