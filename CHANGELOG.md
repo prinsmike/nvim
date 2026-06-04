@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Migrated nvim-treesitter from the `master` branch to the `main` branch for Neovim 0.12 compatibility
+  - The `master` branch does not support Neovim 0.12 and crashed the treesitter highlighter
+  - Highlighting and indentation are now enabled per-buffer via a `FileType` autocmd
+  - Parsers are now installed via `require("nvim-treesitter").install(...)`
+  - Requires the `tree-sitter-cli` (install via your package manager, not npm)
+
 ### Added
 
 - Added custom minimal colorscheme based on principles from https://tonsky.me/blog/syntax-highlighting/
