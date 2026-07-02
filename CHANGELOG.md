@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed Telescope previewer crash (`attempt to call field 'ft_to_lang'`) caused by the nvim-treesitter `main` branch removing the legacy parsers/configs API; Telescope now highlights previews via Neovim's native `vim.treesitter.start`
+
 ### Changed
 
 - Migrated nvim-treesitter from the `master` branch to the `main` branch for Neovim 0.12 compatibility

@@ -26,6 +26,16 @@ return {
 		pcall(require("telescope").load_extension, "fzf")
 		pcall(require("telescope").load_extension, "ui-select")
 
+		-- The nvim-treesitter `main` branch removed the legacy parsers/configs API
+		-- (ft_to_lang, configs.is_enabled, get_parser) that telescope's previewer
+		-- highlighter relies on, causing "attempt to call field 'ft_to_lang'".
+		-- Replace it with Neovim's native treesitter starter; on failure telescope
+		-- falls back to regex highlighting automatically.
+		require("telescope.previewers.utils").ts_highlighter = function(bufnr, ft)
+			local lang = vim.treesitter.language.get_lang(ft) or ft
+			return pcall(vim.treesitter.start, bufnr, lang)
+		end
+
 		local builtin = require("telescope.builtin")
 		vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
 		vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
