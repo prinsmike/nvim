@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed LSP server configuration that was silently dropped on mason-lspconfig v2: the removed `handlers` API meant the `lua_ls` settings and nvim-cmp capabilities were never applied. Migrated to the native `vim.lsp.config` / `vim.lsp.enable` (`automatic_enable`) approach, restoring them
 - Fixed a which-key conflict where `<leader>ac` was registered both as a group ("[C]laude") and as the direct Claude Code toggle mapping; removed the redundant group so the toggle works (the other Claude commands already live directly under the `[A]I` group)
 - Fixed a typo (`vim.fn.lin`) in the gitsigns visual-mode reset-hunk mapping (`<leader>vhr`) that caused an error when resetting a selected hunk
 - Fixed Telescope previewer crash (`attempt to call field 'ft_to_lang'`) caused by the nvim-treesitter `main` branch removing the legacy parsers/configs API; Telescope now highlights previews via Neovim's native `vim.treesitter.start`

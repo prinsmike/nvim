@@ -73,40 +73,45 @@ return { -- LSP Configuration & Plugins
 		local capabilities = vim.lsp.protocol.make_client_capabilities()
 		capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
-		-- Enable the following language servers
-		local servers = {
-			gopls = {},
-			pyright = {},
-			rust_analyzer = {},
+		-- Broadcast the nvim-cmp capabilities to every server. nvim-lspconfig ships
+		-- the base `lsp/<server>.lua` definitions (cmd, root markers, filetypes); we
+		-- only layer our overrides on top via `vim.lsp.config`, and let
+		-- mason-lspconfig's `automatic_enable` call `vim.lsp.enable` for each
+		-- installed server. (The legacy `handlers`/`lspconfig[...].setup` API was
+		-- removed in mason-lspconfig v2.)
+		vim.lsp.config("*", { capabilities = capabilities })
 
-			lua_ls = {
-				settings = {
-					Lua = {
-						completion = {
-							callSnippet = "Replace",
+		-- Per-server overrides.
+		vim.lsp.config("lua_ls", {
+			settings = {
+				Lua = {
+					completion = {
+						callSnippet = "Replace",
+					},
+					workspace = {
+						-- Make the language server aware of the Neovim runtime files
+						library = {
+							[vim.fn.expand("$VIMRUNTIME/lua")] = true,
+							[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
 						},
-						workspace = {
-							-- Make the language server aware of the Neovim runtime files
-							library = {
-								[vim.fn.expand("$VIMRUNTIME/lua")] = true,
-								[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
-							},
-							checkThirdParty = false,
-						},
-						diagnostics = {
-							-- Add "vim" as a global to avoid undefined global warnings
-							globals = { "vim" },
-						},
+						checkThirdParty = false,
+					},
+					diagnostics = {
+						-- Add "vim" as a global to avoid undefined global warnings
+						globals = { "vim" },
 					},
 				},
 			},
-		}
+		})
+
+		-- Language servers to install and enable.
+		local servers = { "gopls", "pyright", "rust_analyzer", "lua_ls" }
+
 		require("mason").setup()
 
 		-- You can add other tools here that you want Mason to install
 		-- for you, so that they are available from within Neovim.
-		local ensure_installed = vim.tbl_keys(servers or {})
-		vim.list_extend(ensure_installed, {
+		local ensure_installed = vim.list_extend(vim.deepcopy(servers), {
 			"stylua", -- Used to format Lua code
 			"goimports", -- Used to organize Go imports
 			"gofumpt", -- Used to format Go code (stricter than gofmt)
@@ -115,14 +120,11 @@ return { -- LSP Configuration & Plugins
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
+		-- `automatic_enable` (default true) calls `vim.lsp.enable` for each server
+		-- Mason installs, applying the `vim.lsp.config` overrides above.
 		require("mason-lspconfig").setup({
-			handlers = {
-				function(server_name)
-					local server = servers[server_name] or {}
-					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-					require("lspconfig")[server_name].setup(server)
-				end,
-			},
+			ensure_installed = {}, -- installs are driven by mason-tool-installer above
+			automatic_enable = true,
 		})
 	end,
 }
