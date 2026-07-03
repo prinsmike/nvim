@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a debugger via `nvim-dap` with `nvim-dap-ui` and `nvim-dap-go` (delve, auto-installed through `mason-nvim-dap`). Keybindings: `<F5>` continue, `<F1>`/`<F2>`/`<F3>` step into/over/out, `<F7>` toggle the debug UI, `<leader>b` toggle breakpoint, `<leader>B` conditional breakpoint. The DAP UI opens and closes automatically with the debug session
 - Added a test runner via `neotest` with the `neotest-golang` adapter (uses the `go test` runner and drives `nvim-dap-go` for debugging). Keybindings under the new `[T]est` group (`<leader>T`): `Tr` run nearest, `Tf` run file, `Ta` run project, `Td` debug nearest, `TS` stop, `Ts` toggle summary, `To`/`TO` show output/toggle output panel, `Tw` watch file
 
+### Changed
+
+- Updated README to document the new debugger and test runner: added Debugging and Testing feature bullets, the Go toolchain prerequisite, the `nvim-dap.lua`/`neotest.lua` files in the config structure, and Debug/Test keybinding tables plus the `<leader>uh` inlay-hint toggle
+
 ## [0.4.0] - 2026-07-03
 
 ### Fixed
