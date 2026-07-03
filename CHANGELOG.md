@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-03
+
 ### Fixed
 
 - Fixed LSP server configuration that was silently dropped on mason-lspconfig v2: the removed `handlers` API meant the `lua_ls` settings and nvim-cmp capabilities were never applied. Migrated to the native `vim.lsp.config` / `vim.lsp.enable` (`automatic_enable`) approach, restoring them
@@ -103,7 +105,8 @@ Initial release of personal Neovim configuration.
 
 - Project tree structure improvements
 
-[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/prinsmike/nvim/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/prinsmike/nvim/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/prinsmike/nvim/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/prinsmike/nvim/releases/tag/v0.1.0
