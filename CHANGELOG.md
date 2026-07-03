@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved the spell-check toggle from `<leader>ps` to `<leader>us` under the new `[U]I toggle` group
 - Cleaned up which-key groups to match reality: relabeled `<leader>d` from "[D]ebugging" (no debugger configured) to "[D]ocument", and removed the empty "[P]aperwork" group
 - Hardened the Telescope treesitter-previewer patch: it now wraps telescope's own highlighter and only falls back to the native starter on error, so a future upstream fix is used instead of being clobbered
+- Updated README to match the current config: minimal colorscheme (was Tokyo Night), Neovim 0.11+/tree-sitter CLI prerequisites, new `<leader>u` UI toggles and Claude Code keybindings, the native `vim.lsp.config` server-add instructions, and `:checkhealth nvim-treesitter` (dropped the removed `:TSInstallInfo`)
 - Migrated nvim-treesitter from the `master` branch to the `main` branch for Neovim 0.12 compatibility
   - The `master` branch does not support Neovim 0.12 and crashed the treesitter highlighter
   - Highlighting and indentation are now enabled per-buffer via a `FileType` autocmd
