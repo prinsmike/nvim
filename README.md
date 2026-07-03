@@ -17,14 +17,16 @@ A modular Neovim configuration built with [lazy.nvim](https://github.com/folke/l
 - **Completion**: nvim-cmp with LSP, buffer, and path sources
 - **File Explorer**: nvim-tree
 - **UI Enhancements**: which-key, indent-blankline, mini.nvim suite
-- **Color Scheme**: Tokyo Night
+- **AI Integration**: Claude Code (claudecode.nvim)
+- **Color Scheme**: Custom minimal theme (inspired by [tonsky.me/blog/syntax-highlighting](https://tonsky.me/blog/syntax-highlighting/))
 
 ## Prerequisites
 
-- Neovim 0.9.0+ (required for lazy.nvim)
+- Neovim 0.11+ (0.12 recommended; uses native `vim.lsp.config`/`vim.lsp.enable`, `vim.diagnostic.jump`, and the nvim-treesitter `main` branch)
 - Git
 - A Nerd Font (for icons)
 - ripgrep (for Telescope live grep)
+- tree-sitter CLI (for installing Treesitter parsers — install via your package manager, not npm)
 - A C compiler (for Treesitter parsers)
 
 ## Installation
@@ -178,6 +180,23 @@ To install a specific tool:
 | `<leader>wft` | Toggle nvim-tree |
 | `<leader>wff` | Focus nvim-tree |
 
+### UI Toggles
+
+| Key | Action |
+|-----|--------|
+| `<leader>uw` | Toggle line wrap |
+| `<leader>us` | Toggle spell check |
+
+### AI (Claude Code)
+
+| Key | Action |
+|-----|--------|
+| `<leader>ac` | Toggle Claude Code |
+| `<leader>af` | Focus Claude Code |
+| `<leader>as` | Send selection to Claude Code (visual mode) |
+| `<leader>am` | Select Claude model |
+| `<leader>aa` / `<leader>ad` | Accept / deny Claude diff |
+
 For more keybindings, press `<leader>` in normal mode to see which-key suggestions.
 
 ## Customization
@@ -194,24 +213,25 @@ For more keybindings, press `<leader>` in normal mode to see which-key suggestio
      end,
    }
    ```
-3. Add the require statement in `init.lua` (lines 96-111)
+3. Add the require statement to the `require("lazy").setup({ ... })` table in `init.lua`
 4. Restart Neovim or run `:Lazy reload`
 
 ### Adding a New LSP Server
 
 1. Open `lua/prinsmike/plugins/nvim-lspconfig.lua`
-2. Add the server name to the `servers` table (line 77-92)
-3. Restart Neovim - Mason will automatically install and configure it
+2. Add the server name to the `servers` list
+3. (Optional) Add server-specific overrides with `vim.lsp.config("<server>", { ... })`
+4. Restart Neovim - Mason installs the server and `mason-lspconfig` enables it automatically
 
 ### Adding a New Formatter
 
 1. Open `lua/prinsmike/plugins/conform.lua`
-2. Add the formatter to `formatters_by_ft` (lines 23-25)
+2. Add the formatter to `formatters_by_ft`
 3. Install the formatter via Mason: `:MasonInstall <formatter-name>`
 
 ### Modifying Settings
 
-- **Global Neovim settings**: Edit `init.lua` (lines 1-47)
+- **Global Neovim settings**: Edit the options and keymaps near the top of `init.lua`
 - **Plugin-specific settings**: Edit the corresponding file in `lua/prinsmike/plugins/`
 - **Extended plugin configs**: Add/modify files in `lua/prinsmike/configs/`
 
@@ -234,7 +254,7 @@ This configuration uses:
 
 1. Update parsers: `:TSUpdate`
 2. Reinstall specific parser: `:TSInstall <language>`
-3. Check parser status: `:TSInstallInfo`
+3. Check parser/config status: `:checkhealth nvim-treesitter`
 
 ### Plugin Issues
 

@@ -11,7 +11,7 @@ vim.opt.showmode = false
 vim.opt.clipboard = "unnamedplus"
 vim.opt.breakindent = true
 vim.opt.undofile = true
-vim.opt.ignorecase = false
+vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.signcolumn = "yes"
 vim.opt.updatetime = 250
@@ -26,15 +26,19 @@ vim.opt.scrolloff = 10
 vim.opt.hlsearch = true
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
-vim.bo.softtabstop = 2
+vim.opt.softtabstop = 2
 vim.opt.expandtab = false
 vim.opt.spelllang = "en_gb"
 
 -- ## keymaps
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagnostic message" })
+vim.keymap.set("n", "[d", function()
+	vim.diagnostic.jump({ count = -1, float = true })
+end, { desc = "Go to previous [D]iagnostic message" })
+vim.keymap.set("n", "]d", function()
+	vim.diagnostic.jump({ count = 1, float = true })
+end, { desc = "Go to next [D]iagnostic message" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 vim.keymap.set("t", "<C-x>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
@@ -55,7 +59,8 @@ vim.keymap.set("n", "<leader>tv", "<cmd>vsp | term<CR>", { desc = "Open [T]ermin
 vim.keymap.set("n", "<leader>tt", "<cmd>tabnew | term<CR>", { desc = "Open [T]erminal in [T]ab" })
 vim.keymap.set("n", "<leader>wp", "<cmd>tabprev<CR>", { desc = "Move focus to previous tab" })
 vim.keymap.set("n", "<leader>wn", "<cmd>tabnext<CR>", { desc = "Move focus to next tab" })
-vim.keymap.set("n", "<leader>ps", ":set spell!<CR>", { desc = "Toggle spell check" })
+vim.keymap.set("n", "<leader>uw", "<cmd>set wrap!<CR>", { desc = "Toggle line [w]rap" })
+vim.keymap.set("n", "<leader>us", "<cmd>set spell!<CR>", { desc = "Toggle [s]pell check" })
 
 -- ### Set up spell checking for markdown files with British English
 vim.api.nvim_create_autocmd("FileType", {
@@ -71,16 +76,16 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	desc = "Highlight when yanking text",
 	group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
 	callback = function()
-		vim.highlight.on_yank()
+		vim.hl.on_yank()
 	end,
 })
 
 -- Install lazy.nvim plugin manager.
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
 	vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-end ---@diagnostic disable-next-line: undefined-field
+end
 vim.opt.rtp:prepend(lazypath)
 
 -- Install and configure plugins
