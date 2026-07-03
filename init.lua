@@ -97,6 +97,7 @@ require("lazy").setup({
 	require("prinsmike.plugins.telescope"),
 	require("prinsmike.plugins.nvim-lspconfig"),
 	require("prinsmike.plugins.nvim-dap"),
+	require("prinsmike.plugins.neotest"),
 	require("prinsmike.plugins.conform"),
 	require("prinsmike.plugins.nvim-cmp"),
 	require("prinsmike.plugins.minimal"),

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configured gopls with Go-specific settings: `gofumpt` formatting, `staticcheck`, placeholder completions, extra analyses (`unusedparams`, `shadow`, `nilness`, `unusedwrite`, `useany`), inlay hints, and code lenses (test, tidy, generate, upgrade/vendor dependency)
 - Enabled LSP inlay hints on attach for any server that supports them (e.g. gopls parameter names and inferred types), with a `<leader>uh` toggle
 - Added a debugger via `nvim-dap` with `nvim-dap-ui` and `nvim-dap-go` (delve, auto-installed through `mason-nvim-dap`). Keybindings: `<F5>` continue, `<F1>`/`<F2>`/`<F3>` step into/over/out, `<F7>` toggle the debug UI, `<leader>b` toggle breakpoint, `<leader>B` conditional breakpoint. The DAP UI opens and closes automatically with the debug session
+- Added a test runner via `neotest` with the `neotest-golang` adapter (uses the `go test` runner and drives `nvim-dap-go` for debugging). Keybindings under the new `[T]est` group (`<leader>T`): `Tr` run nearest, `Tf` run file, `Ta` run project, `Td` debug nearest, `TS` stop, `Ts` toggle summary, `To`/`TO` show output/toggle output panel, `Tw` watch file
 
 ## [0.4.0] - 2026-07-03
 
