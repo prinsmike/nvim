@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added a `[U]I toggle` which-key group (`<leader>u`) with a new line-wrap toggle (`<leader>uw`)
+- Started tracking `lazy-lock.json` for reproducible plugin versions across machines (removed the `.gitignore` entry that previously excluded it)
 - Added custom minimal colorscheme based on principles from https://tonsky.me/blog/syntax-highlighting/
   - Uses only 5 strategic colors (green for strings/numbers, purple for constants, yellow for comments, blue for top-level definitions, gray for punctuation)
   - Avoids over-highlighting by not coloring keywords, variables, or function calls
