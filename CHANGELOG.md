@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced conform.nvim's deprecated `lsp_fallback` option with `lsp_format` (formatting behavior unchanged)
 - Moved the spell-check toggle from `<leader>ps` to `<leader>us` under the new `[U]I toggle` group
 - Cleaned up which-key groups to match reality: relabeled `<leader>d` from "[D]ebugging" (no debugger configured) to "[D]ocument", and removed the empty "[P]aperwork" group
+- Hardened the Telescope treesitter-previewer patch: it now wraps telescope's own highlighter and only falls back to the native starter on error, so a future upstream fix is used instead of being clobbered
 - Migrated nvim-treesitter from the `master` branch to the `main` branch for Neovim 0.12 compatibility
   - The `master` branch does not support Neovim 0.12 and crashed the treesitter highlighter
   - Highlighting and indentation are now enabled per-buffer via a `FileType` autocmd
