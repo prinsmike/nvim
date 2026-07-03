@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Enabled `ignorecase` so that `smartcase` takes effect: searches are now case-insensitive unless the query contains an uppercase letter (previously `smartcase` was a no-op because `ignorecase` was off)
 - Migrated nvim-treesitter from the `master` branch to the `main` branch for Neovim 0.12 compatibility
   - The `master` branch does not support Neovim 0.12 and crashed the treesitter highlighter
   - Highlighting and indentation are now enabled per-buffer via a `FileType` autocmd
