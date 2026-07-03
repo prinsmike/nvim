@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed a typo (`vim.fn.lin`) in the gitsigns visual-mode reset-hunk mapping (`<leader>vhr`) that caused an error when resetting a selected hunk
 - Fixed Telescope previewer crash (`attempt to call field 'ft_to_lang'`) caused by the nvim-treesitter `main` branch removing the legacy parsers/configs API; Telescope now highlights previews via Neovim's native `vim.treesitter.start`
 
 ### Changed
