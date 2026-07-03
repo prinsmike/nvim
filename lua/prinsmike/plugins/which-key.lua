@@ -20,6 +20,8 @@ return {
 			{ "<leader>s_", hidden = true },
 			{ "<leader>t", group = "[T]erminal" },
 			{ "<leader>t_", hidden = true },
+			{ "<leader>u", group = "[U]I toggle" },
+			{ "<leader>u_", hidden = true },
 			{ "<leader>v", group = "[V]ersion Control" },
 			{ "<leader>v_", hidden = true },
 			{ "<leader>vh", group = "[h]unk" },

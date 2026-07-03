@@ -59,7 +59,8 @@ vim.keymap.set("n", "<leader>tv", "<cmd>vsp | term<CR>", { desc = "Open [T]ermin
 vim.keymap.set("n", "<leader>tt", "<cmd>tabnew | term<CR>", { desc = "Open [T]erminal in [T]ab" })
 vim.keymap.set("n", "<leader>wp", "<cmd>tabprev<CR>", { desc = "Move focus to previous tab" })
 vim.keymap.set("n", "<leader>wn", "<cmd>tabnext<CR>", { desc = "Move focus to next tab" })
-vim.keymap.set("n", "<leader>ps", ":set spell!<CR>", { desc = "Toggle spell check" })
+vim.keymap.set("n", "<leader>uw", "<cmd>set wrap!<CR>", { desc = "Toggle line [w]rap" })
+vim.keymap.set("n", "<leader>us", "<cmd>set spell!<CR>", { desc = "Toggle [s]pell check" })
 
 -- ### Set up spell checking for markdown files with British English
 vim.api.nvim_create_autocmd("FileType", {
