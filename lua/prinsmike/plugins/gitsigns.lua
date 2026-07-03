@@ -36,7 +36,6 @@ return {
 
 			map("n", "<leader>vhs", gitsigns.stage_hunk, { desc = "git stage hunk" })
 			map("n", "<leader>vhr", gitsigns.reset_hunk, { desc = "git reset hunk" })
-			map("n", "<leader>vhu", gitsigns.undo_stage_hunk, { desc = "git undo stage hunk" })
 			map("n", "<leader>vS", gitsigns.stage_buffer, { desc = "git stage buffer" })
 			map("n", "<leader>vR", gitsigns.reset_buffer, { desc = "git reset buffer" })
 			map("n", "<leader>vhp", gitsigns.preview_hunk, { desc = "git preview hunk" })

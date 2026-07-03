@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Removed the `<leader>vhu` "git undo stage hunk" mapping; `gitsigns.undo_stage_hunk` no longer exists on the gitsigns `main` branch (staging is now a toggle via `stage_hunk`, so re-running `<leader>vhs` on a staged hunk unstages it)
 - Removed Tokyo Night colorscheme in favor of custom minimal theme
 
 ## [0.3.0] - 2025-11-08
