@@ -11,6 +11,8 @@ A modular Neovim configuration built with [lazy.nvim](https://github.com/folke/l
   - Rust (rust_analyzer)
   - Lua (lua_ls)
 - **Code Formatting**: Format-on-save with conform.nvim
+- **Debugging**: nvim-dap with nvim-dap-ui and Go (delve) support via nvim-dap-go
+- **Testing**: neotest test runner with the neotest-golang adapter (run and debug tests in-editor)
 - **Fuzzy Finding**: Telescope for files, grep, buffers, and config navigation
 - **Syntax Highlighting**: Treesitter with auto-installed parsers
 - **Git Integration**: Gitsigns for inline git status and blame
@@ -28,6 +30,7 @@ A modular Neovim configuration built with [lazy.nvim](https://github.com/folke/l
 - ripgrep (for Telescope live grep)
 - tree-sitter CLI (for installing Treesitter parsers — install via your package manager, not npm)
 - A C compiler (for Treesitter parsers)
+- (For Go development) the Go toolchain — used by gopls, `go test` via neotest, and delve debugging; delve is auto-installed by Mason, but its `dlv` binary requires Go on your `PATH`
 
 ## Installation
 
@@ -60,6 +63,8 @@ lua/prinsmike/
   plugins/                   # Plugin definitions (each file returns a lazy.nvim spec)
     nvim-lspconfig.lua      # LSP configuration with Mason integration
     conform.lua             # Code formatting setup
+    nvim-dap.lua            # Debugger (nvim-dap + dap-ui + dap-go/delve)
+    neotest.lua             # Test runner (neotest + neotest-golang)
     telescope.lua           # Fuzzy finder configuration
     treesitter.lua          # Syntax highlighting
     gitsigns.lua            # Git integration
@@ -165,6 +170,32 @@ To install a specific tool:
 | `<leader>ca` | Code action |
 | `<leader>f` | Format buffer |
 
+### Debug (nvim-dap)
+
+| Key | Action |
+|-----|--------|
+| `<F5>` | Start / continue |
+| `<F1>` | Step into |
+| `<F2>` | Step over |
+| `<F3>` | Step out |
+| `<F7>` | Toggle debug UI |
+| `<leader>b` | Toggle breakpoint |
+| `<leader>B` | Set conditional breakpoint |
+
+### Test (neotest)
+
+| Key | Action |
+|-----|--------|
+| `<leader>Tr` | Run nearest test |
+| `<leader>Tf` | Run tests in file |
+| `<leader>Ta` | Run all tests (project) |
+| `<leader>Td` | Debug nearest test (dap) |
+| `<leader>TS` | Stop running test |
+| `<leader>Ts` | Toggle summary |
+| `<leader>To` | Show test output |
+| `<leader>TO` | Toggle output panel |
+| `<leader>Tw` | Watch file |
+
 ### Terminal
 
 | Key | Action |
@@ -186,6 +217,7 @@ To install a specific tool:
 |-----|--------|
 | `<leader>uw` | Toggle line wrap |
 | `<leader>us` | Toggle spell check |
+| `<leader>uh` | Toggle LSP inlay hints |
 
 ### AI (Claude Code)
 

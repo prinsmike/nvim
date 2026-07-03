@@ -8,6 +8,11 @@ return { -- Highlight, edit, and navigate code
 		require("nvim-treesitter").install({
 			"bash",
 			"c",
+			"go",
+			"gomod",
+			"gosum",
+			"gotmpl",
+			"gowork",
 			"html",
 			"lua",
 			"luadoc",
