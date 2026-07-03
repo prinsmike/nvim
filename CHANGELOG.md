@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-03
+
 ### Added
 
 - Installed Treesitter parsers for Go (`go`, `gomod`, `gosum`, `gotmpl`, `gowork`), giving Go, go.mod, go.sum, template, and go.work files proper syntax highlighting and indentation
@@ -117,7 +119,8 @@ Initial release of personal Neovim configuration.
 
 - Project tree structure improvements
 
-[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/prinsmike/nvim/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/prinsmike/nvim/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/prinsmike/nvim/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/prinsmike/nvim/compare/v0.1.0...v0.2.0
