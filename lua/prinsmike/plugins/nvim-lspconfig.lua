@@ -51,6 +51,16 @@ return { -- LSP Configuration & Plugins
 				-- there for a little while. When you move your cursor, the highlights
 				-- will be cleared (the second autocommand).
 				local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+				-- Enable inlay hints (e.g. gopls parameter names / inferred
+				-- types) if the server supports them, with a toggle.
+				if client and client:supports_method("textDocument/inlayHint") then
+					vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+					map("<leader>uh", function()
+						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }), { bufnr = event.buf })
+					end, "Toggle Inlay [H]ints")
+				end
+
 				if client and client.server_capabilities.documentHighlightProvider then
 					vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 						buffer = event.buf,
@@ -99,6 +109,41 @@ return { -- LSP Configuration & Plugins
 					diagnostics = {
 						-- Add "vim" as a global to avoid undefined global warnings
 						globals = { "vim" },
+					},
+				},
+			},
+		})
+
+		vim.lsp.config("gopls", {
+			settings = {
+				gopls = {
+					gofumpt = true,
+					staticcheck = true,
+					usePlaceholders = true,
+					analyses = {
+						unusedparams = true,
+						shadow = true,
+						nilness = true,
+						unusedwrite = true,
+						useany = true,
+					},
+					hints = {
+						assignVariableTypes = true,
+						compositeLiteralFields = true,
+						compositeLiteralTypes = true,
+						constantValues = true,
+						functionTypeParameters = true,
+						parameterNames = true,
+						rangeVariableTypes = true,
+					},
+					codelenses = {
+						gc_details = true,
+						generate = true,
+						regenerate_cgo = true,
+						test = true,
+						tidy = true,
+						upgrade_dependency = true,
+						vendor = true,
 					},
 				},
 			},

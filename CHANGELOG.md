@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Installed Treesitter parsers for Go (`go`, `gomod`, `gosum`, `gotmpl`, `gowork`), giving Go, go.mod, go.sum, template, and go.work files proper syntax highlighting and indentation
+- Configured gopls with Go-specific settings: `gofumpt` formatting, `staticcheck`, placeholder completions, extra analyses (`unusedparams`, `shadow`, `nilness`, `unusedwrite`, `useany`), inlay hints, and code lenses (test, tidy, generate, upgrade/vendor dependency)
+- Enabled LSP inlay hints on attach for any server that supports them (e.g. gopls parameter names and inferred types), with a `<leader>uh` toggle
+
 ## [0.4.0] - 2026-07-03
 
 ### Fixed
