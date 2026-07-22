@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `AGENTS.md`, a concise agent/contributor guide (project layout, workflow, and conventions), imported by a thin `CLAUDE.md` via `@AGENTS.md`
+- `CONTRIBUTING.md`, a short contributor guide that points to `AGENTS.md` for the full workflow and conventions
 
 ### Fixed
 
