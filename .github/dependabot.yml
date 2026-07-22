@@ -1,0 +1,19 @@
+# Dependabot version updates.
+#
+# This is separate from Dependabot *security* updates (enabled in repo
+# settings). The rule below keeps the GitHub Actions used by our workflows
+# current. lazy.nvim plugins are not a Dependabot ecosystem, so they are
+# managed via the lazy-lock.json lockfile (`:Lazy update`), not here.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore(deps)"
