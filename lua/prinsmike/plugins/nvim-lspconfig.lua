@@ -161,7 +161,9 @@ return { -- LSP Configuration & Plugins
 			"goimports", -- Used to organize Go imports
 			"gofumpt", -- Used to format Go code (stricter than gofmt)
 			"black", -- Used to format Python code
-			"rustfmt", -- Used to format Rust code
+			-- rustfmt is a rustup component, not a Mason package (Mason removed it),
+			-- so install it with `rustup component add rustfmt`. conform picks it up
+			-- from PATH.
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 

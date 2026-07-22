@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `AGENTS.md`, a concise agent/contributor guide (project layout, workflow, and conventions), imported by a thin `CLAUDE.md` via `@AGENTS.md`
 
+### Fixed
+
+- Removed `rustfmt` from the `mason-tool-installer` install list; Mason dropped the `rustfmt` package (it is a `rustup` component, not a Mason binary), so requesting it crashed startup with `Cannot find package "rustfmt"`. Rust formatting still works via conform using the `rustup`-provided `rustfmt` on `PATH`
+
 ## [0.5.0] - 2026-07-03
 
 ### Added
