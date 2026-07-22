@@ -1,0 +1,11 @@
+# Local Neovim state that should never be committed
+*.local
+
+# Editor / OS clutter
+.DS_Store
+*.swp
+*~
+tags
+
+# Spell word-list runtime artefacts (the compiled *.spl files are generated)
+spell/*.add.spl
