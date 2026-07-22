@@ -13,9 +13,9 @@ jobs:
     name: Lua format (stylua)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check formatting
-        uses: JohnnyMorganz/stylua-action@v4
+        uses: JohnnyMorganz/stylua-action@v5
         with:
           token: ${{ github.token }}
           version: latest
@@ -25,7 +25,7 @@ jobs:
     name: Lua lint (luacheck)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install Lua and luacheck
         run: |
           sudo apt-get update
