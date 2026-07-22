@@ -25,7 +25,7 @@ return { -- Autoformat
 			lua = { "stylua" },
 			go = { "goimports", "gofumpt" },
 			python = { "black" },
-			rust = { "rustfmt" },
+			rust = { "rustfmt" }, -- from rustup (`rustup component add rustfmt`), not Mason
 		},
 	},
 }
