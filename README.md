@@ -6,6 +6,8 @@
 
 A modular Neovim configuration built with [lazy.nvim](https://github.com/folke/lazy.nvim), featuring LSP support, code formatting, fuzzy finding, and git integration.
 
+![Neovim running this configuration: the nvim-tree file explorer on the left, `init.lua` open in the centre with the custom minimal colour scheme, and the Claude Code terminal docked on the right.](images/screenshot.png)
+
 ## Features
 
 - **Plugin Manager**: lazy.nvim with lockfile for reproducible installs
