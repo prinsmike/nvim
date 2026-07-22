@@ -14,7 +14,7 @@ Perform the following checks:
    - Duplicate keybindings
    - Syntax errors in Lua files
 5. Check that README.md is up to date with the actual plugins installed
-6. Verify git ignore patterns are appropriate (lazy-lock.json should not be tracked)
+6. Verify git ignore patterns are appropriate
 
 Provide a summary report with:
 - ✓ Items that are correct

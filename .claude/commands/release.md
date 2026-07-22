@@ -18,12 +18,5 @@ Follow these steps:
    - Replace `[Unreleased]` with `[X.Y.Z] - YYYY-MM-DD` using today's date
    - Add a new `[Unreleased]` section at the top
    - Update the comparison links at the bottom
-5. Show the user the git commands to run:
-   ```bash
-   git add CHANGELOG.md
-   git commit -m "Release vX.Y.Z"
-   git tag -a vX.Y.Z -m "Release vX.Y.Z"
-   git push origin main --tags
-   ```
+5. Commit the CHANGELOG.md changes and cut a new release using `gh`
 
-Do NOT automatically run git commands unless the user explicitly asks you to.
