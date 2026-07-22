@@ -1,5 +1,9 @@
 # prinsmike's Neovim Configuration
 
+[![CI](https://github.com/prinsmike/nvim/actions/workflows/ci.yml/badge.svg)](https://github.com/prinsmike/nvim/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/prinsmike/nvim?sort=semver)](https://github.com/prinsmike/nvim/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A modular Neovim configuration built with [lazy.nvim](https://github.com/folke/lazy.nvim), featuring LSP support, code formatting, fuzzy finding, and git integration.
 
 ## Features
@@ -296,4 +300,4 @@ This configuration uses:
 
 ## License
 
-Personal configuration - feel free to use and modify as needed.
+[MIT](LICENSE). This is a personal configuration — feel free to use and adapt it.
