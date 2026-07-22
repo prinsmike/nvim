@@ -7,10 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-22
+
+Public-release preparation: licensing, CI, and contributor/agent docs, plus a
+startup-crash fix.
+
 ### Added
 
 - `AGENTS.md`, a concise agent/contributor guide (project layout, workflow, and conventions), imported by a thin `CLAUDE.md` via `@AGENTS.md`
 - `CONTRIBUTING.md`, a short contributor guide that points to `AGENTS.md` for the full workflow and conventions
+- MIT `LICENSE`
+- Continuous integration: a `ci.yml` workflow running `stylua --check` (with a `stylua.toml` pinning the project's tabs / width-2 style) and `luacheck` on every push and pull request
+- A tag-triggered `release.yml` workflow that fails a `v*` tag without a matching `CHANGELOG.md` entry and publishes that entry as the GitHub release notes
+- Dependabot configuration for weekly, grouped GitHub Actions updates
+- A pull request template and a `CODEOWNERS` file
+- A `.gitignore` for local Neovim and editor state
+- README status badges (CI, latest release, licence) and a screenshot of the configuration in action
+
+### Changed
+
+- Bumped GitHub Actions: `actions/checkout` v4 → v7 and `JohnnyMorganz/stylua-action` v4 → v5
+- Updated the plugin lockfile (`lazy-lock.json`) to current plugin versions
 
 ### Fixed
 
@@ -128,7 +145,8 @@ Initial release of personal Neovim configuration.
 
 - Project tree structure improvements
 
-[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/prinsmike/nvim/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/prinsmike/nvim/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/prinsmike/nvim/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/prinsmike/nvim/compare/v0.2.0...v0.3.0
