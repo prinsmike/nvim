@@ -263,12 +263,32 @@ the repository is mounted at the same absolute path it has on the host.
 Without a file, `CLAUDE_CONTAINER=go nvim` does the same thing for one session,
 and `CLAUDE_CONTAINER=off` forces the host installation.
 
+To let the agent push and open pull requests, add:
+
+```ini
+ssh=agent
+github=token
+```
+
+`ssh=agent` forwards your SSH agent socket, so git can push without the private
+key ever entering the container. `github=token` passes a `gh` token in, which is
+needed because `gh` keeps its token in the system keyring rather than in a file.
+Claude Code's own credentials need nothing: its OAuth tokens live in the
+configuration directory that is already mounted, so a Max subscription
+authenticates with no API key and no API costs.
+
 Separate accounts get separate configuration directories, and each container
 sees only its own:
 
 ```bash
-nvim                              # personal, ~/.claude
-CLAUDE_CONFIG_DIR=~/.claude-work nvim   # work, ~/.claude-work
+# personal
+nvim
+
+# work — Claude account, GitHub account and SSH keys all switch together
+CLAUDE_CONFIG_DIR=~/.claude-work \
+  GH_CONFIG_DIR=~/.config/gh-work \
+  SSH_AUTH_SOCK=~/.ssh/agent-work.sock \
+  nvim
 ```
 
 Requires Docker. The design, the security trade-offs and the limitations are in

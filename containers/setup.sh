@@ -21,9 +21,21 @@ apt-get install -y --no-install-recommends \
 	curl \
 	git \
 	less \
+	openssh-client \
 	procps \
 	ripgrep \
 	socat
+
+# The GitHub CLI, from GitHub's own apt repository. The agent needs it to open
+# and review pull requests; scripts/claude-container supplies the token.
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+	-o /usr/share/keyrings/githubcli-archive-keyring.gpg
+chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+printf 'deb [arch=%s signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\n' \
+	"$(dpkg --print-architecture)" >/etc/apt/sources.list.d/github-cli.list
+apt-get update
+apt-get install -y --no-install-recommends gh
+
 rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------------------------------------

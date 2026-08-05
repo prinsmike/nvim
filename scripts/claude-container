@@ -97,6 +97,8 @@ cfg_variant=
 cfg_image=
 cfg_dockerfile=
 cfg_network=host
+cfg_ssh=off
+cfg_github=off
 cfg_home=/home/agent
 cfg_user="$(id -u):$(id -g)"
 cfg_mounts=()
@@ -139,6 +141,8 @@ read_config() {
 		image) cfg_image=$value ;;
 		dockerfile) cfg_dockerfile=$value ;;
 		network) cfg_network=$value ;;
+		ssh) cfg_ssh=$value ;;
+		github) cfg_github=$value ;;
 		home) cfg_home=$value ;;
 		user) cfg_user=$value ;;
 		mount)
@@ -207,6 +211,16 @@ esac
 case $cfg_user in
 *:*) ;;
 *) die "user must be 'uid:gid', got '$cfg_user'" ;;
+esac
+
+case $cfg_ssh in
+off | agent) ;;
+*) die "ssh must be 'off' or 'agent', got '$cfg_ssh'" ;;
+esac
+
+case $cfg_github in
+off | token) ;;
+*) die "github must be 'off' or 'token', got '$cfg_github'" ;;
 esac
 
 # ---------------------------------------------------------------------------
@@ -299,6 +313,10 @@ case ${1:-} in
 	printf 'network      %s\n' "$cfg_network"
 	printf 'user         %s\n' "$cfg_user"
 	printf 'claude cfg   %s -> %s/.claude\n' "$HOST_CONFIG_DIR" "$cfg_home"
+	printf 'ssh          %s\n' \
+		"$([ "$cfg_ssh" = agent ] && printf 'agent %s' "${SSH_AUTH_SOCK:-(SSH_AUTH_SOCK unset!)}" || printf 'off')"
+	printf 'github       %s\n' \
+		"$([ "$cfg_github" = token ] && printf 'token via gh (%s)' "${GH_CONFIG_DIR:-~/.config/gh}" || printf 'off')"
 	for m in ${cfg_mounts+"${cfg_mounts[@]}"}; do printf 'mount        %s\n' "$m"; done
 	for e in ${cfg_envs+"${cfg_envs[@]}"}; do printf 'env          %s\n' "$e"; done
 	exit 0
@@ -339,12 +357,63 @@ args=(
 	--interactive
 )
 
+# .claude.json holds onboarding state, trust decisions and per-project history.
+# Claude Code keeps it inside CLAUDE_CONFIG_DIR when that is set, and at
+# ~/.claude.json when it is not. Since the container always runs with the
+# variable set, an unset host is the case where the file sits outside the mount
+# and has to be carried in by itself — otherwise the container starts against a
+# blank config and writes a stub into the mounted directory.
+if [ -z "${CLAUDE_CONFIG_DIR:-}" ] && [ -r "$HOME/.claude.json" ]; then
+	args+=(--volume "$HOME/.claude.json:$cfg_home/.claude/.claude.json")
+fi
+
 if [ -t 0 ] && [ -t 1 ]; then
 	args+=(--tty)
 fi
 
 if [ -r "$HOME/.gitconfig" ]; then
 	args+=(--volume "$HOME/.gitconfig:$cfg_home/.gitconfig:ro")
+fi
+
+# ---------------------------------------------------------------------------
+# SSH. Forward the agent socket rather than mounting a key: the container can
+# ask the agent to sign, but the private key never crosses the boundary. Note
+# that this grants use of every key loaded into that agent, so account
+# separation means running an agent per account, not filtering here.
+# ---------------------------------------------------------------------------
+
+if [ "$cfg_ssh" = agent ]; then
+	[ -n "${SSH_AUTH_SOCK:-}" ] ||
+		die "ssh=agent but SSH_AUTH_SOCK is unset; is an ssh-agent running?"
+	[ -S "$SSH_AUTH_SOCK" ] ||
+		die "ssh=agent but $SSH_AUTH_SOCK is not a socket"
+
+	args+=(
+		--volume "$SSH_AUTH_SOCK:/run/ssh-agent.sock"
+		--env SSH_AUTH_SOCK=/run/ssh-agent.sock
+	)
+
+	# Without known_hosts every git push stops on an unknown-host prompt.
+	if [ -r "$HOME/.ssh/known_hosts" ]; then
+		args+=(--volume "$HOME/.ssh/known_hosts:$cfg_home/.ssh/known_hosts:ro")
+	fi
+fi
+
+# ---------------------------------------------------------------------------
+# GitHub. `gh auth token` is asked for the token at launch, because gh stores it
+# in the system keyring by default and mounting ~/.config/gh would carry nothing.
+# Which account answers is decided by the environment Neovim was started in, via
+# GH_CONFIG_DIR, the same way CLAUDE_CONFIG_DIR decides the Claude account.
+# ---------------------------------------------------------------------------
+
+if [ "$cfg_github" = token ]; then
+	command -v gh >/dev/null 2>&1 || die "github=token but gh is not installed"
+
+	gh_token=$(gh auth token 2>/dev/null || true)
+	[ -n "$gh_token" ] ||
+		die "github=token but 'gh auth token' returned nothing; run 'gh auth login'"
+
+	args+=(--env "GH_TOKEN=$gh_token")
 fi
 
 for m in ${cfg_mounts+"${cfg_mounts[@]}"}; do args+=(--volume "$m"); done

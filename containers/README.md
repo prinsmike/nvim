@@ -7,7 +7,7 @@ The design and the reasoning behind it are in
 
 | Variant  | Base                | Adds                                    |
 | -------- | ------------------- | --------------------------------------- |
-| `base`   | `debian:bookworm-slim` | git, ripgrep, socat                  |
+| `base`   | `debian:bookworm-slim` | git, gh, ssh, ripgrep, socat         |
 | `go`     | `golang:1.26`       | Go toolchain, goimports, staticcheck    |
 | `node`   | `node:22-slim`      | Node.js, npm, corepack (pnpm and yarn)  |
 | `python` | `python:3.12-slim`  | CPython, uv, ruff                       |
@@ -54,6 +54,8 @@ Either must satisfy the image contract:
 - `claude` on `PATH`
 - `sh` and `git`
 - `socat`, only if the project sets `network=bridge`
+- `ssh`, only if the project sets `ssh=agent`
+- `gh`, only if the project sets `github=token`
 
 The entrypoint is not part of the contract. It is bind-mounted from
 `entrypoint.sh` at run time, so images need no awareness of it.

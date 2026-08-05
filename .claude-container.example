@@ -28,6 +28,26 @@ variant=base
 #        host loopback at all. Requires socat in the image.
 # network=bridge
 
+# --- credentials ------------------------------------------------------------
+#
+# Claude Code needs nothing here: its OAuth tokens live in the configuration
+# directory, which is always mounted, so a Max subscription authenticates with
+# no API key and no API costs.
+
+# agent forwards $SSH_AUTH_SOCK so git can push. The private key never enters
+#       the container — but every key loaded into that agent becomes usable, so
+#       separate accounts need separate agents. known_hosts is mounted too.
+# ssh=agent
+
+# token runs `gh auth token` on the host at launch and passes GH_TOKEN, giving
+#       the agent a working gh for pull requests. Needed because gh stores its
+#       token in the system keyring, so mounting ~/.config/gh carries nothing.
+#       Which account answers depends on GH_CONFIG_DIR in your environment.
+# github=token
+
+# Repositories whose remotes use ~/.ssh/config host aliases need it mounted:
+# mount=~/.ssh/config:/home/agent/.ssh/config:ro
+
 # --- extras -----------------------------------------------------------------
 
 # Extra bind mounts, src:dst[:opts], repeatable. A leading ~/ or $HOME expands;

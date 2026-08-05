@@ -192,16 +192,111 @@ modification, and fixing the entrypoint does not invalidate every image.
 
 ### What is mounted
 
-| Source                     | Destination            | Mode |
-| -------------------------- | ---------------------- | ---- |
-| repository root            | identical path         | rw   |
-| `$CLAUDE_CONFIG_DIR`       | `/home/agent/.claude`  | rw   |
-| `~/.gitconfig`             | `/home/agent/.gitconfig` | ro |
-| `containers/entrypoint.sh` | `/usr/local/bin/claude-entrypoint` | ro |
+| Source                     | Destination            | Mode | When |
+| -------------------------- | ---------------------- | ---- | ---- |
+| repository root            | identical path         | rw   | always |
+| `$CLAUDE_CONFIG_DIR`       | `/home/agent/.claude`  | rw   | always |
+| `~/.claude.json`           | `/home/agent/.claude/.claude.json` | rw | when `CLAUDE_CONFIG_DIR` is unset |
+| `~/.gitconfig`             | `/home/agent/.gitconfig` | ro | when it exists |
+| `containers/entrypoint.sh` | `/usr/local/bin/claude-entrypoint` | ro | always |
+| `$SSH_AUTH_SOCK`           | `/run/ssh-agent.sock`  | rw   | `ssh=agent` |
+| `~/.ssh/known_hosts`       | `/home/agent/.ssh/known_hosts` | ro | `ssh=agent` |
 
-Nothing else. Notably **not** `~/.ssh` and **not** the Docker socket — mounting
-the latter would hand the container root on the host and make the entire
-exercise theatre.
+Nothing else. Notably **not** `~/.ssh` itself and **not** the Docker socket —
+mounting the latter would hand the container root on the host and make the
+entire exercise theatre.
+
+`.claude.json` needs explaining. It holds onboarding state, trust decisions and
+per-project history, and Claude Code keeps it *inside* `CLAUDE_CONFIG_DIR` when
+that variable is set but at `~/.claude.json` when it is not. The container
+always runs with it set, so on a host where it is unset the file sits outside
+the mounted directory and has to be carried in on its own. Without that, the
+container starts against a blank configuration and writes a stub into the
+mounted directory.
+
+## Authentication
+
+Nothing authenticates inside the container. Every credential is established on
+the host and reaches the container as either a mount or a token, which is what
+keeps the browser flows working — a container has no browser to open.
+
+### Claude Code
+
+A Max subscription authenticates over OAuth, and the tokens live in
+`$CLAUDE_CONFIG_DIR/.credentials.json` on Linux — inside the directory already
+mounted read-write. So the container uses the subscription, not the API, and
+incurs no API costs. Refreshed tokens are written back through the mount and
+persist on the host.
+
+There is no need to set `ANTHROPIC_API_KEY`, and setting one would be a
+downgrade: it bills per token instead of using the subscription.
+
+The browser flow only matters when there is no valid token to inherit — a first
+login, or a fully expired refresh token. Run `claude` on the host and log in
+there; the container picks up the result on its next session.
+
+### GitHub CLI
+
+`gh` stores its token in the system keyring by default, not in
+`~/.config/gh/hosts.yml`. Mounting the gh configuration directory therefore
+carries no credentials at all — this was verified, not assumed.
+
+So `github=token` asks the host at launch instead: the launcher runs
+`gh auth token` and passes the result as `GH_TOKEN`. The container then has a
+working `gh` for reviewing and opening pull requests, with the same scopes the
+host account has.
+
+The token is passed as an environment variable, so it is visible to anything
+that can query the Docker daemon. On a single-user machine that is already
+root-equivalent, but it is a real difference from the SSH arrangement below,
+where no secret crosses the boundary at all.
+
+### SSH
+
+`ssh=agent` bind-mounts `$SSH_AUTH_SOCK` rather than any key. The container can
+ask the agent to sign, but the private key never crosses the boundary — with
+`~/.ssh` unmounted there is nothing to read. `known_hosts` comes along read-only,
+without which every push would stop at an unknown-host prompt.
+
+The limit worth understanding: forwarding an agent grants use of **every key
+loaded into it**. Separation between accounts is therefore a property of which
+agent is forwarded, not something the launcher can filter.
+
+Repositories whose remotes use `~/.ssh/config` host aliases need that file too,
+since aliases are resolved client-side:
+
+```ini
+mount=~/.ssh/config:/home/agent/.ssh/config:ro
+```
+
+Plain `git@github.com:owner/repo.git` remotes need nothing extra: the user comes
+from the URL and the key from the agent.
+
+### Putting it together: two accounts
+
+An account is defined by three environment variables, all of them inherited by
+the launcher from whatever environment Neovim was started in:
+
+| Variable            | Decides                        |
+| ------------------- | ------------------------------ |
+| `CLAUDE_CONFIG_DIR` | which Claude subscription      |
+| `SSH_AUTH_SOCK`     | which SSH keys are usable      |
+| `GH_CONFIG_DIR`     | which GitHub account `gh` uses |
+
+A wrapper per account keeps them in step:
+
+```bash
+#!/usr/bin/env bash
+# nvim-work
+export CLAUDE_CONFIG_DIR="$HOME/.claude-work"
+export GH_CONFIG_DIR="$HOME/.config/gh-work"
+export SSH_AUTH_SOCK="$HOME/.ssh/agent-work.sock"
+exec nvim "$@"
+```
+
+The work agent should hold only the work key. Forwarding one agent that holds
+both keys would let the work container push as the personal identity, which is
+exactly the boundary the separate configuration directories exist to draw.
 
 The configuration directory is mounted read-write because Claude Code writes
 session history and project state there. It necessarily contains that account's
@@ -232,7 +327,8 @@ mix.
 What this buys:
 
 - The agent cannot read `~/.ssh`, other repositories, browser profiles, shell
-  history, or the other account's credentials.
+  history, or the other account's credentials. With `ssh=agent` it can use your
+  keys without ever being able to read them.
 - Writes land as your UID inside the one directory you mounted.
 - Anything the agent installs dies with the container.
 
@@ -242,6 +338,9 @@ What it does not buy:
   `network=bridge` does buy this.
 - Any restriction on outbound network access, in either mode.
 - Protection against a container escape, which is not the threat model.
+- Any narrowing of what the forwarded credentials can do. A `GH_TOKEN` carries
+  the host account's full scopes, and a forwarded agent carries every key it
+  holds. Both are all-or-nothing, and both default to off.
 
 An honest summary: this is a meaningful reduction in blast radius, not a
 sandbox in the security-boundary sense.
@@ -280,5 +379,9 @@ servers, and the terminal integration.
 - **Egress is unrestricted.** An allowlisting firewall (`NET_ADMIN` plus
   iptables rules in the entrypoint, permitting the Anthropic API and little
   else) is the obvious next step and is not implemented.
+- **Old image tags accumulate.** Content-hashed tags mean editing a Dockerfile
+  builds a new image and leaves the previous one behind. Clear them out with
+  `docker image prune --filter label=... ` or, more bluntly,
+  `docker images 'claude-container/*' -q | xargs -r docker rmi`.
 - **Linux and Docker only.** `host` networking behaves differently on macOS,
   and rootless Docker changes the UID mapping the tagging scheme assumes.
