@@ -82,7 +82,7 @@ lua/prinsmike/
     nvim-tree.lua           # Extended nvim-tree configuration
 scripts/
   claude-container          # Runs Claude Code in a container, or falls back to the host
-containers/                 # Example images (base, go, node, python)
+containers/                 # Example images (base, go, node, python, terraform)
 docs/                       # Design documents
 ```
 
