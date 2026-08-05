@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-05
+
+Optional containerised Claude Code: the agent can now be confined to a single
+repository, with the host installation still the default.
+
 ### Added
 
 - Optional containerised Claude Code. `scripts/claude-container` runs the agent in a container scoped to a single repository, mounting only that repository, the Claude configuration directory and `.gitconfig`. The repository is mounted at the same absolute path it has on the host, which is what keeps diffs, selections and `@`-mentions working — every path in the claudecode.nvim protocol is absolute
@@ -158,7 +163,8 @@ Initial release of personal Neovim configuration.
 
 - Project tree structure improvements
 
-[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/prinsmike/nvim/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/prinsmike/nvim/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/prinsmike/nvim/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/prinsmike/nvim/compare/v0.3.0...v0.4.0
