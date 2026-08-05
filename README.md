@@ -25,7 +25,7 @@ A modular Neovim configuration built with [lazy.nvim](https://github.com/folke/l
 - **Completion**: nvim-cmp with LSP, buffer, and path sources
 - **File Explorer**: nvim-tree
 - **UI Enhancements**: which-key, indent-blankline, mini.nvim suite
-- **AI Integration**: Claude Code (claudecode.nvim)
+- **AI Integration**: Claude Code (claudecode.nvim), optionally sandboxed in a per-project container
 - **Color Scheme**: Custom minimal theme (inspired by [tonsky.me/blog/syntax-highlighting](https://tonsky.me/blog/syntax-highlighting/))
 
 ## Prerequisites
@@ -80,6 +80,10 @@ lua/prinsmike/
     [others]                # Additional plugins
   configs/
     nvim-tree.lua           # Extended nvim-tree configuration
+scripts/
+  claude-container          # Runs Claude Code in a container, or falls back to the host
+containers/                 # Example images (base, go, node, python)
+docs/                       # Design documents
 ```
 
 ## Updating
@@ -236,6 +240,39 @@ To install a specific tool:
 | `<leader>aa` / `<leader>ad` | Accept / deny Claude diff |
 
 For more keybindings, press `<leader>` in normal mode to see which-key suggestions.
+
+#### Running Claude Code in a container
+
+Claude Code is launched through [`scripts/claude-container`](scripts/claude-container),
+which by default just execs your host installation — nothing changes unless you
+ask it to.
+
+To confine the agent to a single repository, drop a `.claude-container` file at
+that repository's root (see [`.claude-container.example`](.claude-container.example)):
+
+```ini
+variant=go
+```
+
+The next session builds [`containers/go.Dockerfile`](containers/) and runs
+`claude` inside it, with only that repository, your Claude configuration
+directory and your `.gitconfig` mounted. Your editor, LSP servers and formatters
+stay on the host, and diffs, selections and `@`-mentions keep working because
+the repository is mounted at the same absolute path it has on the host.
+
+Without a file, `CLAUDE_CONTAINER=go nvim` does the same thing for one session,
+and `CLAUDE_CONTAINER=off` forces the host installation.
+
+Separate accounts get separate configuration directories, and each container
+sees only its own:
+
+```bash
+nvim                              # personal, ~/.claude
+CLAUDE_CONFIG_DIR=~/.claude-work nvim   # work, ~/.claude-work
+```
+
+Requires Docker. The design, the security trade-offs and the limitations are in
+[docs/claude-container.md](docs/claude-container.md).
 
 ## Customization
 
