@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Optional containerised Claude Code. `scripts/claude-container` runs the agent in a container scoped to a single repository, mounting only that repository, the Claude configuration directory and `.gitconfig`. The repository is mounted at the same absolute path it has on the host, which is what keeps diffs, selections and `@`-mentions working — every path in the claudecode.nvim protocol is absolute
+- Opt-in per project via a `.claude-container` file at the repository root, or per session via `CLAUDE_CONTAINER`; with neither, the launcher execs the host installation unchanged, so the default behaviour is untouched
+- Example images in `containers/` for `base`, `go`, `node` and `python`, built on demand and tagged with a hash of the Dockerfile, the shared setup script and the host UID/GID, so editing one rebuilds automatically
+- `network=bridge` as an alternative to the default shared network namespace: the agent runs in its own namespace with only the editor's WebSocket port forwarded in, and cannot reach host loopback services
+- `ssh=agent`, forwarding the SSH agent socket so the agent can `git push` without the private key ever entering the container, and `github=token`, passing a `gh` token in so pull requests can be opened and reviewed. Both default to off. Claude Code itself needs no extra configuration: its OAuth tokens live in the configuration directory that is already mounted, so a Max subscription authenticates with no API key and no API costs
+- `docs/claude-container.md`, recording the design, authentication, the security trade-offs, the alternatives considered and the known limitations
+
+### Changed
+
+- `claudecode.nvim` now launches through `terminal_cmd`, pointing at the in-repo launcher
+
 ## [0.6.0] - 2026-07-22
 
 Public-release preparation: licensing, CI, and contributor/agent docs, plus a

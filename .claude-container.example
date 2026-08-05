@@ -1,0 +1,67 @@
+# Example .claude-container file.
+#
+# Copy to `.claude-container` at a repository root to make claudecode.nvim run
+# Claude Code inside a container scoped to that repository. Without this file
+# (and without CLAUDE_CONTAINER set) the host installation is used unchanged.
+#
+# Flat key=value. Parsed line by line, never sourced or eval'd. Blank lines and
+# lines starting with # are ignored. See docs/claude-container.md.
+
+# --- image: pick exactly one -----------------------------------------------
+
+# A Dockerfile shipped in containers/: base, go, node or python.
+variant=base
+
+# ...or a Dockerfile in this project, built with the project root as context.
+# dockerfile=.claude/Dockerfile
+
+# ...or a prebuilt image, which is never built or pulled by the launcher.
+# image=ghcr.io/example/dev:latest
+
+# --- networking -------------------------------------------------------------
+
+# host   (default) shares the host's network namespace. Simplest, and the way
+#        the container reaches the editor socket on 127.0.0.1 — but it can also
+#        reach every other service listening on host loopback.
+# bridge puts the agent on its own namespace and forwards only the editor port
+#        into it, via a short-lived relay sidecar. The agent cannot then reach
+#        host loopback at all. Requires socat in the image.
+# network=bridge
+
+# --- credentials ------------------------------------------------------------
+#
+# Claude Code needs nothing here: its OAuth tokens live in the configuration
+# directory, which is always mounted, so a Max subscription authenticates with
+# no API key and no API costs.
+
+# agent forwards $SSH_AUTH_SOCK so git can push. The private key never enters
+#       the container — but every key loaded into that agent becomes usable, so
+#       separate accounts need separate agents. known_hosts is mounted too.
+# ssh=agent
+
+# token runs `gh auth token` on the host at launch and passes GH_TOKEN, giving
+#       the agent a working gh for pull requests. Needed because gh stores its
+#       token in the system keyring, so mounting ~/.config/gh carries nothing.
+#       Which account answers depends on GH_CONFIG_DIR in your environment.
+# github=token
+
+# Repositories whose remotes use ~/.ssh/config host aliases need it mounted:
+# mount=~/.ssh/config:/home/agent/.ssh/config:ro
+
+# --- extras -----------------------------------------------------------------
+
+# Extra bind mounts, src:dst[:opts], repeatable. A leading ~/ or $HOME expands;
+# a relative source resolves against the project root. Use these for caches, or
+# for directories outside the repository that the agent genuinely needs.
+# mount=~/go/pkg/mod:/home/agent/go/pkg/mod
+# mount=~/.cache/uv:/home/agent/.cache/uv
+
+# Environment variables, repeatable. NAME passes the host's value through;
+# NAME=value sets one explicitly.
+# env=GOFLAGS
+# env=CGO_ENABLED=0
+
+# Override the container user (uid:gid) and home. Only needed for images that
+# do not follow the contract in containers/README.md.
+# user=1000:1000
+# home=/home/agent
