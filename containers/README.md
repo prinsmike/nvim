@@ -5,12 +5,13 @@ built on demand by [`scripts/claude-container`](../scripts/claude-container).
 The design and the reasoning behind it are in
 [`docs/claude-container.md`](../docs/claude-container.md).
 
-| Variant  | Base                | Adds                                    |
-| -------- | ------------------- | --------------------------------------- |
-| `base`   | `debian:bookworm-slim` | git, gh, ssh, ripgrep, socat         |
-| `go`     | `golang:1.26`       | Go toolchain, goimports, staticcheck    |
-| `node`   | `node:22-slim`      | Node.js, npm, corepack (pnpm and yarn)  |
-| `python` | `python:3.12-slim`  | CPython, uv, ruff                       |
+| Variant     | Base                   | Adds                                     |
+| ----------- | ---------------------- | ---------------------------------------- |
+| `base`      | `debian:bookworm-slim` | git, gh, ssh, ripgrep, socat             |
+| `go`        | `golang:1.26`          | Go toolchain, goimports, staticcheck     |
+| `node`      | `node:22-slim`         | Node.js, npm, corepack (pnpm and yarn)   |
+| `python`    | `python:3.12-slim`     | CPython, uv, ruff                        |
+| `terraform` | `debian:bookworm-slim` | Terraform, tflint, terraform-docs, trivy |
 
 Select one from a project's `.claude-container` file:
 
@@ -21,6 +22,22 @@ variant=go
 Language servers are deliberately absent. gopls, pyright and the rest run on
 the host under nvim-lspconfig; only what the agent invokes itself needs to be
 in the image.
+
+## Cloud credentials
+
+No image carries any, and none is mounted unless a project asks for it. That
+matters most for `terraform`: the container isolates the *filesystem*, not the
+infrastructure, so a mounted `~/.aws` or an exported `GOOGLE_APPLICATION_CREDENTIALS`
+puts real environments within reach of `terraform apply`. Give the agent a
+read-only role, or nothing at all and run `plan`/`apply` yourself.
+
+If credentials are genuinely needed, pass them explicitly:
+
+```ini
+variant=terraform
+mount=~/.aws:/home/agent/.aws:ro
+env=AWS_PROFILE
+```
 
 ## Adding a variant
 

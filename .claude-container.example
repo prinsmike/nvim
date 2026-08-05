@@ -9,7 +9,7 @@
 
 # --- image: pick exactly one -----------------------------------------------
 
-# A Dockerfile shipped in containers/: base, go, node or python.
+# A Dockerfile shipped in containers/: base, go, node, python or terraform.
 variant=base
 
 # ...or a Dockerfile in this project, built with the project root as context.
@@ -52,9 +52,17 @@ variant=base
 
 # Extra bind mounts, src:dst[:opts], repeatable. A leading ~/ or $HOME expands;
 # a relative source resolves against the project root. Use these for caches, or
-# for directories outside the repository that the agent genuinely needs.
+# for directories outside the repository that the agent genuinely needs. Create
+# the source first: Docker creates a missing one as a root-owned directory, which
+# the agent then cannot write to.
 # mount=~/go/pkg/mod:/home/agent/go/pkg/mod
 # mount=~/.cache/uv:/home/agent/.cache/uv
+# mount=~/.terraform.d/plugin-cache:/home/agent/.terraform.d/plugin-cache
+
+# Cloud credentials are never mounted for you. The container isolates files, not
+# infrastructure — read the note in containers/README.md before adding these.
+# mount=~/.aws:/home/agent/.aws:ro
+# env=AWS_PROFILE
 
 # Environment variables, repeatable. NAME passes the host's value through;
 # NAME=value sets one explicitly.
