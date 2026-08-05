@@ -1,0 +1,424 @@
+#!/usr/bin/env bash
+#
+# claude-container - run Claude Code inside a container scoped to a single
+# repository, or fall back to the host installation when no container is asked
+# for.
+#
+# claudecode.nvim invokes this through `terminal_cmd`. With no `.claude-container`
+# file and no CLAUDE_CONTAINER in the environment it is a transparent wrapper
+# around the host `claude`.
+#
+# See docs/claude-container.md for the design and the rationale.
+
+set -euo pipefail
+
+readonly PROG=claude-container
+
+die() {
+	printf '%s: %s\n' "$PROG" "$*" >&2
+	exit 1
+}
+
+# ---------------------------------------------------------------------------
+# Locate this checkout, following symlinks, so containers/ can be found no
+# matter how the script was invoked.
+# ---------------------------------------------------------------------------
+
+self=${BASH_SOURCE[0]}
+while [ -L "$self" ]; do
+	target=$(readlink "$self")
+	case $target in
+	/*) self=$target ;;
+	*) self=$(dirname "$self")/$target ;;
+	esac
+done
+self=$(cd "$(dirname "$self")" && pwd)/$(basename "$self")
+
+readonly SELF=$self
+readonly SCRIPT_DIR=${SELF%/*}
+readonly REPO_ROOT=${SCRIPT_DIR%/*}
+readonly CONTAINERS_DIR="$REPO_ROOT/containers"
+readonly ENTRYPOINT="$CONTAINERS_DIR/entrypoint.sh"
+readonly SETUP="$CONTAINERS_DIR/setup.sh"
+
+# ---------------------------------------------------------------------------
+# Project root. claudecode.nvim sets the terminal's cwd to the git root when
+# git_repo_cwd is on, but resolve it ourselves so the script also behaves when
+# run by hand from a subdirectory.
+# ---------------------------------------------------------------------------
+
+project_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
+[ -n "$project_root" ] || project_root=$PWD
+
+readonly PROJECT_ROOT=$project_root
+readonly CONFIG_FILE=${CLAUDE_CONTAINER_FILE:-$PROJECT_ROOT/.claude-container}
+readonly HOST_CONFIG_DIR=${CLAUDE_CONFIG_DIR:-$HOME/.claude}
+
+# ---------------------------------------------------------------------------
+# Fall back to the host installation.
+# ---------------------------------------------------------------------------
+
+exec_host() {
+	local bin=${CLAUDE_CONTAINER_HOST_BIN:-}
+
+	if [ -z "$bin" ]; then
+		bin=$(command -v claude 2>/dev/null || true)
+	fi
+
+	# --container-info must report the resolved mode rather than forwarding an
+	# unknown flag to claude, including when the resolution is "no container".
+	if [ "${1:-}" = --container-info ]; then
+		printf 'project      %s\n' "$PROJECT_ROOT"
+		printf 'config       %s\n' "(none)"
+		printf 'mode         host fallback\n'
+		printf 'claude       %s\n' "${bin:-(not found)}"
+		exit 0
+	fi
+
+	[ -n "$bin" ] || die "no container requested and 'claude' is not on PATH"
+
+	# Guard against someone symlinking this script onto PATH as `claude`.
+	if [ "$(readlink -f "$bin")" = "$SELF" ]; then
+		die "'$bin' resolves back to this script; set CLAUDE_CONTAINER_HOST_BIN"
+	fi
+
+	exec "$bin" "$@"
+}
+
+# ---------------------------------------------------------------------------
+# Configuration.
+#
+# .claude-container is a flat key=value file. It is read line by line and never
+# sourced or eval'd: the file is read before the agent starts, and a repository
+# should not be able to get code execution out of it.
+# ---------------------------------------------------------------------------
+
+cfg_variant=
+cfg_image=
+cfg_dockerfile=
+cfg_network=host
+cfg_home=/home/agent
+cfg_user="$(id -u):$(id -g)"
+cfg_mounts=()
+cfg_envs=()
+
+expand_path() {
+	# Expand a leading ~/ or $HOME and resolve bare relative paths against the
+	# project root. No eval, so nothing else is interpreted.
+	local p=$1
+	# shellcheck disable=SC2088,SC2016  # matching the literal prefixes, not expanding
+	case $p in
+	'~/'*) p="$HOME/${p#'~/'}" ;;
+	'$HOME/'*) p="$HOME/${p#'$HOME/'}" ;;
+	/*) ;;
+	*) p="$PROJECT_ROOT/$p" ;;
+	esac
+	printf '%s' "$p"
+}
+
+read_config() {
+	local file=$1 lineno=0 line key value
+
+	while IFS= read -r line || [ -n "$line" ]; do
+		lineno=$((lineno + 1))
+		line=${line%$'\r'}                    # tolerate CRLF
+		line=${line#"${line%%[![:space:]]*}"} # trim leading space
+		line=${line%"${line##*[![:space:]]}"} # trim trailing space
+
+		[ -n "$line" ] || continue
+		case $line in \#*) continue ;; esac
+		case $line in *=*) ;; *) die "$file:$lineno: expected key=value" ;; esac
+
+		key=${line%%=*}
+		key=${key%"${key##*[![:space:]]}"}
+		value=${line#*=}
+		value=${value#"${value%%[![:space:]]*}"}
+
+		case $key in
+		variant) cfg_variant=$value ;;
+		image) cfg_image=$value ;;
+		dockerfile) cfg_dockerfile=$value ;;
+		network) cfg_network=$value ;;
+		home) cfg_home=$value ;;
+		user) cfg_user=$value ;;
+		mount)
+			case $value in
+			*:*) ;;
+			*) die "$file:$lineno: mount needs src:dst[:opts]" ;;
+			esac
+			cfg_mounts+=("$(expand_path "${value%%:*}"):${value#*:}")
+			;;
+		env) cfg_envs+=("$value") ;;
+		*) die "$file:$lineno: unknown key '$key'" ;;
+		esac
+	done <"$file"
+}
+
+# ---------------------------------------------------------------------------
+# Decide whether a container was asked for at all.
+# ---------------------------------------------------------------------------
+
+requested=${CLAUDE_CONTAINER:-}
+
+case $requested in
+0 | off | no | false | host) exec_host "$@" ;;
+esac
+
+if [ -z "$requested" ] && [ ! -f "$CONFIG_FILE" ]; then
+	exec_host "$@"
+fi
+
+if [ -f "$CONFIG_FILE" ]; then
+	read_config "$CONFIG_FILE"
+fi
+
+# CLAUDE_CONTAINER names an image or a variant, and wins over the file's choice
+# of image while leaving its mounts, env and network settings in place.
+case $requested in
+'' | 1 | on | yes | true) ;;
+*/* | *:*)
+	cfg_image=$requested
+	cfg_variant=
+	cfg_dockerfile=
+	;;
+*)
+	cfg_variant=$requested
+	cfg_image=
+	cfg_dockerfile=
+	;;
+esac
+
+if [ -z "$cfg_variant$cfg_image$cfg_dockerfile" ]; then
+	cfg_variant=base
+fi
+
+# From here on a container was explicitly requested. Failures are fatal: after
+# an explicit opt-in, silently running unconfined on the host would be a
+# security surprise rather than a convenience.
+
+command -v docker >/dev/null 2>&1 || die "docker is not installed"
+[ -r "$ENTRYPOINT" ] || die "missing $ENTRYPOINT"
+
+case $cfg_network in
+host | bridge) ;;
+*) die "network must be 'host' or 'bridge', got '$cfg_network'" ;;
+esac
+
+case $cfg_user in
+*:*) ;;
+*) die "user must be 'uid:gid', got '$cfg_user'" ;;
+esac
+
+# ---------------------------------------------------------------------------
+# Resolve the image, building it on demand.
+#
+# The tag is a hash of everything that determines the image's contents, so
+# editing a Dockerfile rebuilds on the next session, and building as a different
+# user cannot reuse an image full of wrongly-owned files.
+# ---------------------------------------------------------------------------
+
+image=
+dockerfile=
+build_context=
+shipped=false
+
+if [ -n "$cfg_image" ]; then
+	image=$cfg_image
+elif [ -n "$cfg_dockerfile" ]; then
+	dockerfile=$(expand_path "$cfg_dockerfile")
+	build_context=$PROJECT_ROOT
+	[ -r "$dockerfile" ] || die "no such Dockerfile: $dockerfile"
+else
+	case $cfg_variant in
+	*[!a-z0-9._-]* | [!a-z0-9]*)
+		die "invalid variant '$cfg_variant' (lowercase alphanumerics, '.', '_', '-')"
+		;;
+	esac
+	dockerfile="$CONTAINERS_DIR/$cfg_variant.Dockerfile"
+	build_context=$CONTAINERS_DIR
+	shipped=true
+	[ -r "$dockerfile" ] || die "unknown variant '$cfg_variant' (no $dockerfile)"
+fi
+
+claude_version=${CLAUDE_CONTAINER_VERSION:-latest}
+
+image_tag() {
+	local hash
+	hash=$(
+		{
+			cat "$dockerfile"
+			# Shipped Dockerfiles COPY setup.sh, so it belongs in the hash too.
+			if [ "$shipped" = true ]; then cat "$SETUP"; fi
+			printf '%s\n%s\n' "$cfg_user" "$claude_version"
+		} | sha256sum
+	)
+	printf 'claude-container/%s:%s' "${cfg_variant:-project}" "${hash:0:12}"
+}
+
+build_image() {
+	printf '%s: building %s\n' "$PROG" "$image" >&2
+	docker build \
+		--file "$dockerfile" \
+		--build-arg "AGENT_UID=${cfg_user%%:*}" \
+		--build-arg "AGENT_GID=${cfg_user##*:}" \
+		--build-arg "CLAUDE_VERSION=$claude_version" \
+		--tag "$image" \
+		"$@" \
+		"$build_context" >&2
+}
+
+[ -n "$image" ] || image=$(image_tag)
+
+# ---------------------------------------------------------------------------
+# Our own flags, recognised only as the first argument so they cannot collide
+# with anything passed through to claude.
+# ---------------------------------------------------------------------------
+
+case ${1:-} in
+--container-rebuild)
+	[ -n "$dockerfile" ] || die "image '$image' is not built by this script"
+	build_image --no-cache --pull
+	exit 0
+	;;
+--container-build)
+	[ -n "$dockerfile" ] || die "image '$image' is not built by this script"
+	if ! docker image inspect "$image" >/dev/null 2>&1; then build_image; fi
+	exit 0
+	;;
+--container-info)
+	built=no
+	if docker image inspect "$image" >/dev/null 2>&1; then built=yes; fi
+	config='(none)'
+	if [ -f "$CONFIG_FILE" ]; then config=$CONFIG_FILE; fi
+
+	printf 'project      %s\n' "$PROJECT_ROOT"
+	printf 'config       %s\n' "$config"
+	printf 'image        %s\n' "$image"
+	printf 'dockerfile   %s\n' "${dockerfile:-(prebuilt)}"
+	printf 'built        %s\n' "$built"
+	printf 'network      %s\n' "$cfg_network"
+	printf 'user         %s\n' "$cfg_user"
+	printf 'claude cfg   %s -> %s/.claude\n' "$HOST_CONFIG_DIR" "$cfg_home"
+	for m in ${cfg_mounts+"${cfg_mounts[@]}"}; do printf 'mount        %s\n' "$m"; done
+	for e in ${cfg_envs+"${cfg_envs[@]}"}; do printf 'env          %s\n' "$e"; done
+	exit 0
+	;;
+esac
+
+if [ -n "$dockerfile" ] && ! docker image inspect "$image" >/dev/null 2>&1; then
+	build_image
+fi
+
+# ---------------------------------------------------------------------------
+# Run.
+# ---------------------------------------------------------------------------
+
+[ -d "$HOST_CONFIG_DIR" ] || die "no Claude config directory at $HOST_CONFIG_DIR"
+
+args=(
+	run --rm --init
+	--label "claude-container.project=$PROJECT_ROOT"
+	--network "$cfg_network"
+	--user "$cfg_user"
+	--entrypoint /usr/local/bin/claude-entrypoint
+	--workdir "$PWD"
+	--env "HOME=$cfg_home"
+	--env "CLAUDE_CONFIG_DIR=$cfg_home/.claude"
+	--env DISABLE_AUTOUPDATER=1
+	--env ENABLE_IDE_INTEGRATION
+	--env FORCE_CODE_TERMINAL
+	--env CLAUDE_CODE_SSE_PORT
+	--env TERM
+	--env COLORTERM
+	# The repository, at the same absolute path it has on the host. Every path in
+	# the IDE protocol is absolute, so this identity is what makes diffs and
+	# @-mentions resolve on both sides.
+	--volume "$PROJECT_ROOT:$PROJECT_ROOT"
+	--volume "$HOST_CONFIG_DIR:$cfg_home/.claude"
+	--volume "$ENTRYPOINT:/usr/local/bin/claude-entrypoint:ro"
+	--interactive
+)
+
+if [ -t 0 ] && [ -t 1 ]; then
+	args+=(--tty)
+fi
+
+if [ -r "$HOME/.gitconfig" ]; then
+	args+=(--volume "$HOME/.gitconfig:$cfg_home/.gitconfig:ro")
+fi
+
+for m in ${cfg_mounts+"${cfg_mounts[@]}"}; do args+=(--volume "$m"); done
+for e in ${cfg_envs+"${cfg_envs[@]}"}; do args+=(--env "$e"); done
+
+# ---------------------------------------------------------------------------
+# Bridge networking needs a relay, because the editor's WebSocket server is
+# bound to the host's 127.0.0.1 and nothing on the bridge gateway address
+# answers. A sidecar on the host network binds the gateway address and forwards
+# to loopback; the entrypoint in the agent container then forwards the
+# container's own loopback to that. The sidecar runs nothing but socat, so
+# sharing the host namespace buys a single forwarded port rather than reachability
+# to every service on host loopback, which is what plain `network=host` gives up.
+# ---------------------------------------------------------------------------
+
+relay_name=
+
+# shellcheck disable=SC2329  # invoked from a trap
+cleanup_relay() {
+	if [ -n "$relay_name" ]; then
+		docker rm --force "$relay_name" >/dev/null 2>&1 || true
+	fi
+}
+
+start_relay() {
+	local port=$1 gateway name i=0
+
+	gateway=$(docker network inspect bridge \
+		--format '{{ (index .IPAM.Config 0).Gateway }}' 2>/dev/null || true)
+	[ -n "$gateway" ] || die "cannot determine the docker bridge gateway address"
+
+	name="claude-ide-relay-$port"
+	docker rm --force "$name" >/dev/null 2>&1 || true
+
+	docker run --detach --rm --name "$name" \
+		--network host --user "$cfg_user" "$image" \
+		socat "TCP-LISTEN:$port,bind=$gateway,reuseaddr,fork" \
+		"TCP:127.0.0.1:$port" >/dev/null ||
+		die "could not start the IDE relay (does $image have socat?)"
+
+	relay_name=$name
+	trap cleanup_relay EXIT INT TERM
+
+	# Wait for the bind rather than dialling the port, which would open a
+	# connection through to the editor that it would see and immediately lose.
+	if command -v ss >/dev/null 2>&1; then
+		while [ "$i" -lt 50 ]; do
+			if ss -ltnH 2>/dev/null | grep -q "$gateway:$port "; then
+				return 0
+			fi
+			i=$((i + 1))
+			sleep 0.1
+		done
+		die "the IDE relay did not bind $gateway:$port"
+	else
+		sleep 0.5
+	fi
+}
+
+if [ "$cfg_network" = bridge ]; then
+	args+=(
+		--add-host host.docker.internal:host-gateway
+		--env CLAUDE_IDE_BRIDGE_HOST=host.docker.internal
+	)
+
+	if [ -n "${CLAUDE_CODE_SSE_PORT:-}" ]; then
+		start_relay "$CLAUDE_CODE_SSE_PORT"
+	fi
+fi
+
+if [ -z "$relay_name" ]; then
+	exec docker "${args[@]}" "$image" claude "$@"
+fi
+
+status=0
+docker "${args[@]}" "$image" claude "$@" || status=$?
+exit "$status"
