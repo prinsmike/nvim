@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- [markdown-preview.nvim](https://github.com/selimacerbas/markdown-preview.nvim): live Markdown preview in the browser with Mermaid diagrams, KaTeX maths and scroll sync, served by a pure Lua HTTP server so no Node.js is needed. Loads on Markdown and Mermaid files; `<leader>mp` / `<leader>mr` / `<leader>ms` start, refresh and stop the preview
+
 ## [0.7.0] - 2026-08-05
 
 Optional containerised Claude Code: the agent can now be confined to a single

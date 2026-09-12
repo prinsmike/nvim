@@ -108,6 +108,7 @@ require("lazy").setup({
 	require("prinsmike.plugins.nvim-autopairs"),
 	require("prinsmike.plugins.indent-blankline"),
 	require("prinsmike.plugins.claudecode"),
+	require("prinsmike.plugins.markdown-preview"),
 }, {
 	ui = {
 		icons = vim.g.have_nerd_font and {} or {
