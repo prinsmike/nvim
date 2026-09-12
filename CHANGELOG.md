@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-12
+
+Live Markdown preview in the browser.
+
 ### Added
 
 - [markdown-preview.nvim](https://github.com/selimacerbas/markdown-preview.nvim): live Markdown preview in the browser with Mermaid diagrams, KaTeX maths and scroll sync, served by a pure Lua HTTP server so no Node.js is needed. Loads on Markdown and Mermaid files; `<leader>mp` / `<leader>mr` / `<leader>ms` start, refresh and stop the preview
@@ -167,7 +171,8 @@ Initial release of personal Neovim configuration.
 
 - Project tree structure improvements
 
-[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/prinsmike/nvim/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/prinsmike/nvim/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/prinsmike/nvim/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/prinsmike/nvim/compare/v0.4.0...v0.5.0
