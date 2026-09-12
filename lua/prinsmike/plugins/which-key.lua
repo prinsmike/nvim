@@ -10,6 +10,8 @@ return {
 			{ "<leader>c_", hidden = true },
 			{ "<leader>d", group = "[D]ocument" },
 			{ "<leader>d_", hidden = true },
+			{ "<leader>m", group = "[M]arkdown" },
+			{ "<leader>m_", hidden = true },
 			{ "<leader>wf", group = "[F]ile Tree" },
 			{ "<leader>wf_", hidden = true },
 			{ "<leader>r", group = "[R]ename" },
