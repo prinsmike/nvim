@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Migrate markdown-preview.nvim to its new name, [mdkite.nvim](https://github.com/selimacerbas/mdkite.nvim), and its server dependency live-server.nvim to [kitehost.nvim](https://github.com/selimacerbas/kitehost.nvim). The `MarkdownPreview*` commands and the `markdown_preview` module are deprecated upstream and removed in mdkite.nvim 3.0.0; the `<leader>mp` / `<leader>mr` / `<leader>ms` keymaps now call `:MdKite start` / `refresh` / `stop`
+
 ## [0.8.0] - 2026-09-12
 
 Live Markdown preview in the browser.
