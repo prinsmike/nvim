@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-10-27
+
+Follow the upstream rename of markdown-preview.nvim to mdkite.nvim.
+
 ### Changed
 
 - Migrate markdown-preview.nvim to its new name, [mdkite.nvim](https://github.com/selimacerbas/mdkite.nvim), and its server dependency live-server.nvim to [kitehost.nvim](https://github.com/selimacerbas/kitehost.nvim). The `MarkdownPreview*` commands and the `markdown_preview` module are deprecated upstream and removed in mdkite.nvim 3.0.0; the `<leader>mp` / `<leader>mr` / `<leader>ms` keymaps now call `:MdKite start` / `refresh` / `stop`
@@ -175,7 +179,8 @@ Initial release of personal Neovim configuration.
 
 - Project tree structure improvements
 
-[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/prinsmike/nvim/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/prinsmike/nvim/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/prinsmike/nvim/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/prinsmike/nvim/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/prinsmike/nvim/compare/v0.5.0...v0.6.0
