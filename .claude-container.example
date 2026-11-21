@@ -9,7 +9,7 @@
 
 # --- image: pick exactly one -----------------------------------------------
 
-# A Dockerfile shipped in containers/: base, go, node, python or terraform.
+# A Dockerfile shipped in containers/: base, go, node, python, rust or terraform.
 variant=base
 
 # ...or a Dockerfile in this project, built with the project root as context.
@@ -57,6 +57,7 @@ variant=base
 # the agent then cannot write to.
 # mount=~/go/pkg/mod:/home/agent/go/pkg/mod
 # mount=~/.cache/uv:/home/agent/.cache/uv
+# mount=~/.cargo/registry:/home/agent/.cargo/registry
 # mount=~/.terraform.d/plugin-cache:/home/agent/.terraform.d/plugin-cache
 
 # Cloud credentials are never mounted for you. The container isolates files, not
