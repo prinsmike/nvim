@@ -80,6 +80,23 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
+-- ### Reload buffers that changed on disk
+-- A coding agent in the terminal split edits, formats and checks out files
+-- while they are open here. 'autoread' only acts when something asks Neovim to
+-- compare a buffer with its file, so ask whenever attention comes back to the
+-- editor. Buffers with unsaved changes are never overwritten: Neovim prompts.
+vim.opt.autoread = true
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "TermLeave" }, {
+	desc = "Reload buffers that changed on disk",
+	group = vim.api.nvim_create_augroup("reload-changed-buffers", { clear = true }),
+	callback = function()
+		-- `:checktime` is an error in the command-line window.
+		if vim.fn.getcmdwintype() == "" then
+			vim.cmd.checktime()
+		end
+	end,
+})
+
 -- Install lazy.nvim plugin manager.
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
