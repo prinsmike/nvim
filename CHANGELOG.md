@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Rust development alongside a coding agent.
+
+### Added
+
+- [rustaceanvim](https://github.com/mrcjkb/rustaceanvim) for Rust: runnables, testables, debuggables, macro expansion, error explanations and grouped code actions under `<leader>R` (and `<leader>ca`) in Rust buffers. Diagnostics come from clippy, so a workspace's own lints show while reviewing. rust-analyzer checks into `target/rust-analyzer`, so it and an agent running `cargo` in the terminal never wait on each other's build directory lock
+- Rust debugging through codelldb, installed by Mason, and Rust tests in neotest through rustaceanvim's adapter, which uses cargo-nextest when it is installed
+- [crates.nvim](https://github.com/saecki/crates.nvim): the newest version of each dependency inline in `Cargo.toml`, with hover, code actions and completion through the usual LSP keys
+- Treesitter parsers for Rust and TOML
+- Buffers reload when their file changes on disk, so edits an agent makes from the terminal show up without `:e`. A buffer with unsaved changes prompts instead. A reloaded Rust buffer also asks rust-analyzer for a fresh check, which otherwise only runs on save and would leave the diagnostics describing the code before the edit
+- Branch review with gitsigns: `<leader>vB` toggles the diff base of every buffer between the index and the point where the branch left the default branch, and `<leader>vq` lists every change against the current base in the quickfix window
+- Claude Code keys: `<leader>ar` / `<leader>aC` resume or continue a session, `<leader>ab` adds the current buffer to Claude's context, and `<leader>as` in nvim-tree adds the file under the cursor
+- `rust` container variant for `scripts/claude-container`: the Rust toolchain with clippy, rustfmt and cargo-nextest
+
+### Changed
+
+- rust-analyzer is started by rustaceanvim instead of nvim-lspconfig. Mason still installs it; it is excluded from mason-lspconfig's `automatic_enable` so that only one client attaches
+- Neovim 0.12 is now required (rustaceanvim 9 does not load on 0.11)
+
 ## [0.8.1] - 2026-10-27
 
 Follow the upstream rename of markdown-preview.nvim to mdkite.nvim.
