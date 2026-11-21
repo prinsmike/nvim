@@ -9,6 +9,11 @@ return { -- Test runner: run/debug tests from the editor with inline results
 		-- Go adapter. Uses the `go test` runner by default and drives
 		-- nvim-dap-go for debugging (dap_mode = "dap-go").
 		"fredrikaverpil/neotest-golang",
+
+		-- Rust adapter, shipped with rustaceanvim. It asks rust-analyzer for the
+		-- tests, runs them with cargo-nextest when that is installed (plain
+		-- `cargo test` otherwise) and debugs through codelldb.
+		"mrcjkb/rustaceanvim",
 	},
 	keys = {
 		{
@@ -81,6 +86,7 @@ return { -- Test runner: run/debug tests from the editor with inline results
 				require("neotest-golang")({
 					dap_mode = "dap-go",
 				}),
+				require("rustaceanvim.neotest"),
 			},
 		})
 	end,

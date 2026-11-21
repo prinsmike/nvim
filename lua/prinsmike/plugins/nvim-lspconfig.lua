@@ -161,17 +161,21 @@ return { -- LSP Configuration & Plugins
 			"goimports", -- Used to organize Go imports
 			"gofumpt", -- Used to format Go code (stricter than gofmt)
 			"black", -- Used to format Python code
+			"codelldb", -- Debug adapter for Rust; rustaceanvim finds it on PATH
 			-- rustfmt is a rustup component, not a Mason package (Mason removed it),
 			-- so install it with `rustup component add rustfmt`. conform picks it up
 			-- from PATH.
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
-		-- `automatic_enable` (default true) calls `vim.lsp.enable` for each server
-		-- Mason installs, applying the `vim.lsp.config` overrides above.
+		-- `automatic_enable` calls `vim.lsp.enable` for each server Mason installs,
+		-- applying the `vim.lsp.config` overrides above. rust_analyzer is the
+		-- exception: Mason still installs it, but rustaceanvim starts it (see
+		-- rustaceanvim.lua), and enabling it here as well would attach two
+		-- rust-analyzer clients to every Rust buffer.
 		require("mason-lspconfig").setup({
 			ensure_installed = {}, -- installs are driven by mason-tool-installer above
-			automatic_enable = true,
+			automatic_enable = { exclude = { "rust_analyzer" } },
 		})
 	end,
 }
