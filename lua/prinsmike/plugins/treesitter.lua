@@ -18,6 +18,8 @@ return { -- Highlight, edit, and navigate code
 			"luadoc",
 			"markdown",
 			"markdown_inline",
+			"rust",
+			"toml",
 			"vim",
 			"vimdoc",
 		})

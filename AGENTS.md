@@ -40,6 +40,9 @@ It is meant to be cloned into `~/.config/nvim`. There is no build or test suite 
   `require` it from the `lazy.setup` table in `init.lua`.
 - **LSP server**: add it to the `servers` list in
   `lua/prinsmike/plugins/nvim-lspconfig.lua`; Mason installs it automatically.
+  rust-analyzer is the exception: Mason installs it, but
+  `lua/prinsmike/plugins/rustaceanvim.lua` starts and configures it, so its
+  settings go there and it stays excluded from `automatic_enable`.
 - **Formatter**: add it to `formatters_by_ft` in `lua/prinsmike/plugins/conform.lua`.
 
 Repo slash commands automate these — see `.claude/commands/`.

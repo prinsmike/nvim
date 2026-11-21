@@ -14,11 +14,12 @@ A modular Neovim configuration built with [lazy.nvim](https://github.com/folke/l
 - **LSP Support**: Automatic language server installation via Mason
   - Go (gopls)
   - Python (pyright)
-  - Rust (rust_analyzer)
+  - Rust (rust-analyzer, run by rustaceanvim with clippy diagnostics)
   - Lua (lua_ls)
+- **Rust**: rustaceanvim (runnables, debuggables, macro expansion) and crates.nvim (dependency versions in `Cargo.toml`), set up to share a checkout with a coding agent — see [Rust alongside an agent](#rust-alongside-an-agent)
 - **Code Formatting**: Format-on-save with conform.nvim
-- **Debugging**: nvim-dap with nvim-dap-ui and Go (delve) support via nvim-dap-go
-- **Testing**: neotest test runner with the neotest-golang adapter (run and debug tests in-editor)
+- **Debugging**: nvim-dap with nvim-dap-ui, Go (delve) support via nvim-dap-go and Rust (codelldb) support via rustaceanvim
+- **Testing**: neotest test runner with the neotest-golang and rustaceanvim adapters (run and debug tests in-editor)
 - **Fuzzy Finding**: Telescope for files, grep, buffers, and config navigation
 - **Syntax Highlighting**: Treesitter with auto-installed parsers
 - **Git Integration**: Gitsigns for inline git status and blame
@@ -30,13 +31,14 @@ A modular Neovim configuration built with [lazy.nvim](https://github.com/folke/l
 
 ## Prerequisites
 
-- Neovim 0.11+ (0.12 recommended; uses native `vim.lsp.config`/`vim.lsp.enable`, `vim.diagnostic.jump`, and the nvim-treesitter `main` branch)
+- Neovim 0.12+ (uses native `vim.lsp.config`/`vim.lsp.enable`, `vim.diagnostic.jump`, and the nvim-treesitter `main` branch; rustaceanvim 9 does not load on anything older)
 - Git
 - A Nerd Font (for icons)
 - ripgrep (for Telescope live grep)
 - tree-sitter CLI (for installing Treesitter parsers — install via your package manager, not npm)
 - A C compiler (for Treesitter parsers)
 - (For Go development) the Go toolchain — used by gopls, `go test` via neotest, and delve debugging; delve is auto-installed by Mason, but its `dlv` binary requires Go on your `PATH`
+- (For Rust development) a rustup toolchain with the components Mason does not provide: `rustup component add rust-src clippy rustfmt`. rust-analyzer needs `rust-src` to analyse the standard library, diagnostics come from `clippy`, and conform formats with `rustfmt`. rust-analyzer and codelldb are auto-installed by Mason. Optional: [cargo-nextest](https://nexte.st) (`cargo install --locked cargo-nextest`), which neotest uses in place of `cargo test` when it is installed
 
 ## Installation
 
@@ -68,9 +70,11 @@ lazy-lock.json               # Plugin version lockfile
 lua/prinsmike/
   plugins/                   # Plugin definitions (each file returns a lazy.nvim spec)
     nvim-lspconfig.lua      # LSP configuration with Mason integration
+    rustaceanvim.lua        # Rust: rust-analyzer client, runnables, debuggables
+    crates.lua              # Rust: dependency versions in Cargo.toml
     conform.lua             # Code formatting setup
     nvim-dap.lua            # Debugger (nvim-dap + dap-ui + dap-go/delve)
-    neotest.lua             # Test runner (neotest + neotest-golang)
+    neotest.lua             # Test runner (neotest + neotest-golang + rustaceanvim)
     telescope.lua           # Fuzzy finder configuration
     treesitter.lua          # Syntax highlighting
     gitsigns.lua            # Git integration
@@ -82,7 +86,7 @@ lua/prinsmike/
     nvim-tree.lua           # Extended nvim-tree configuration
 scripts/
   claude-container          # Runs Claude Code in a container, or falls back to the host
-containers/                 # Example images (base, go, node, python, terraform)
+containers/                 # Example images (base, go, node, python, rust, terraform)
 docs/                       # Design documents
 ```
 
@@ -206,6 +210,36 @@ To install a specific tool:
 | `<leader>TO` | Toggle output panel |
 | `<leader>Tw` | Watch file |
 
+### Rust (rustaceanvim)
+
+Available in Rust buffers, on top of the LSP, debug and test keys above.
+
+| Key | Action |
+|-----|--------|
+| `<leader>Rr` | Pick a runnable (binary, example, test, bench) and run it |
+| `<leader>Rt` | Pick a test and run it |
+| `<leader>Rd` | Pick a debuggable, build it and debug it (codelldb) |
+| `<leader>Rm` | Expand the macro under the cursor |
+| `<leader>Re` | Explain the error under the cursor (`rustc --explain`) |
+| `<leader>RD` | Show the diagnostic as rustc prints it |
+| `<leader>Rc` | Open the crate's `Cargo.toml` |
+| `<leader>Rp` | Go to the parent module |
+| `<leader>Rf` | Re-run the check (clippy) |
+| `<leader>ca` | Code action, with rust-analyzer's grouping |
+
+In `Cargo.toml`, crates.nvim shows the newest version of each dependency inline; `K` lists versions and features and `<leader>ca` upgrades.
+
+### Git (gitsigns)
+
+| Key | Action |
+|-----|--------|
+| `<leader>v.` / `<leader>v,` | Next / previous change |
+| `<leader>vhp` | Preview hunk |
+| `<leader>vhs` / `<leader>vhr` | Stage / reset hunk |
+| `<leader>vd` / `<leader>vD` | Diff against the index / the last commit |
+| `<leader>vB` | Toggle the diff base between the index and where the branch left the default branch (review a whole branch) |
+| `<leader>vq` | List every change against the current base in the quickfix window |
+
 ### Terminal
 
 | Key | Action |
@@ -235,11 +269,45 @@ To install a specific tool:
 |-----|--------|
 | `<leader>ac` | Toggle Claude Code |
 | `<leader>af` | Focus Claude Code |
-| `<leader>as` | Send selection to Claude Code (visual mode) |
+| `<leader>ar` / `<leader>aC` | Resume a session / continue the last one |
+| `<leader>ab` | Add the current buffer to Claude's context |
+| `<leader>as` | Send selection to Claude Code (visual mode); in nvim-tree, add the file under the cursor |
 | `<leader>am` | Select Claude model |
 | `<leader>aa` / `<leader>ad` | Accept / deny Claude diff |
 
 For more keybindings, press `<leader>` in normal mode to see which-key suggestions.
+
+#### Rust alongside an agent
+
+The Rust setup assumes that an agent runs `cargo` in the terminal split while
+the editor is open on the same checkout. Four things follow from that:
+
+- **Separate build directories.** rust-analyzer checks into
+  `target/rust-analyzer`, the agent builds into `target/`. Cargo locks a build
+  directory for the length of a build, so with a shared one each side waits
+  for the other on every save. The price is disk space: dependencies are
+  compiled once per directory. For the same reason debug configurations are
+  not built when the server attaches: `<leader>Rd` builds the one you pick,
+  and `<F5>` on its own offers only the generic "LLDB: Launch", which asks for
+  the path of an executable.
+- **Clippy as the checker.** Diagnostics come from `cargo clippy`, so a
+  workspace's own lints (`unwrap_used`, `expect_used`, `panic` and so on) show
+  while you review. Claude Code reads the same diagnostics from the editor
+  through claudecode.nvim, so it sees what you see.
+- **Diagnostics that follow the agent's edits.** Buffers reload when their
+  file changes on disk (a buffer with unsaved changes prompts instead), and a
+  reloaded Rust buffer asks rust-analyzer for a fresh check. Without that the
+  check only runs on save, and the diagnostics would describe the code as it
+  was before the agent's edit. Edits to files that are not open do not trigger
+  it; `<leader>Rf` re-runs the check by hand.
+- **Review by branch.** `<leader>vB` and `<leader>vq` turn gitsigns into a
+  review of everything a branch changed, hunk by hunk, in the editor.
+
+In a large workspace a full clippy run on every save can be slow. Setting
+`check = { workspace = false }` next to `command = "clippy"` in
+`lua/prinsmike/plugins/rustaceanvim.lua` limits each run to the crate being
+edited, at the cost of not seeing what an edit breaks in the crates that depend
+on it.
 
 #### Running Claude Code in a container
 

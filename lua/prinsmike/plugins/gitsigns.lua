@@ -1,3 +1,7 @@
+-- The revision `<leader>vB` moved the diff base to, or nil when diffing against
+-- the index. Shared by every buffer, because the base is changed globally.
+local review_base = nil
+
 return {
 	"lewis6991/gitsigns.nvim",
 	opts = {
@@ -44,6 +48,35 @@ return {
 			map("n", "<leader>vD", function()
 				gitsigns.diffthis("@")
 			end, { desc = "git diff against last commit" })
+			-- Review a whole branch, e.g. one an agent wrote. `<leader>vB` moves
+			-- the diff base of every buffer to where the branch left the default
+			-- branch, so the signs, the hunk motions and the hunk preview cover
+			-- all of its commits and not only what is uncommitted. Press it
+			-- again to go back to the index. `<leader>vq` lists every hunk
+			-- against the current base in the quickfix window, across all
+			-- changed files, which makes a reading list for the review.
+			map("n", "<leader>vB", function()
+				if review_base then
+					review_base = nil
+					gitsigns.reset_base(true)
+					vim.notify("gitsigns: diffing against the index")
+					return
+				end
+				local root = vim.fs.root(bufnr, ".git") or vim.uv.cwd()
+				for _, ref in ipairs({ "origin/HEAD", "main", "master" }) do
+					local res = vim.system({ "git", "merge-base", "HEAD", ref }, { cwd = root, text = true }):wait()
+					if res.code == 0 then
+						review_base = vim.trim(res.stdout)
+						gitsigns.change_base(review_base, true)
+						vim.notify(("gitsigns: diffing against %s (merge base with %s)"):format(review_base:sub(1, 8), ref))
+						return
+					end
+				end
+				vim.notify("gitsigns: no origin/HEAD, main or master to compare with", vim.log.levels.WARN)
+			end, { desc = "git toggle diff against branch base (review)" })
+			map("n", "<leader>vq", function()
+				gitsigns.setqflist("all")
+			end, { desc = "git all changes to quickfix" })
 			map("n", "<leader>vtb", gitsigns.toggle_current_line_blame, { desc = "toggle git show blame line" })
 			map("n", "<leader>vtd", gitsigns.toggle_deleted, { desc = "toggle git show deleted" })
 		end,

@@ -11,6 +11,7 @@ The design and the reasoning behind it are in
 | `go`        | `golang:1.26`          | Go toolchain, goimports, staticcheck     |
 | `node`      | `node:22-slim`         | Node.js, npm, corepack (pnpm and yarn)   |
 | `python`    | `python:3.12-slim`     | CPython, uv, ruff                        |
+| `rust`      | `rust:1`               | Rust toolchain, clippy, rustfmt, nextest |
 | `terraform` | `debian:bookworm-slim` | Terraform, tflint, terraform-docs, trivy |
 
 Select one from a project's `.claude-container` file:
@@ -22,6 +23,13 @@ variant=go
 Language servers are deliberately absent. gopls, pyright and the rest run on
 the host under nvim-lspconfig; only what the agent invokes itself needs to be
 in the image.
+
+For `rust`, the agent in the container and rust-analyzer on the host build the
+same checkout, usually with different compiler versions. They stay out of each
+other's way because the editor checks into `target/rust-analyzer` (see
+`lua/prinsmike/plugins/rustaceanvim.lua`) and the agent builds into `target/`.
+The image carries no system libraries beyond the base image's, so a project
+that links against GUI or codec libraries needs its own `dockerfile=`.
 
 ## Cloud credentials
 

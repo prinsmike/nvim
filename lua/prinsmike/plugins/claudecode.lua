@@ -8,7 +8,11 @@ return {
 	keys = {
 		{ "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle [C]laude Code" },
 		{ "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "[F]ocus Claude Code" },
+		{ "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "[R]esume a Claude Code session" },
+		{ "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "[C]ontinue the last Claude Code session" },
+		{ "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current [B]uffer to Claude Code" },
 		{ "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "[S]end to Claude Code" },
+		{ "<leader>as", "<cmd>ClaudeCodeTreeAdd<cr>", ft = "NvimTree", desc = "[S]end file to Claude Code" },
 		{ "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude [M]odel" },
 		{ "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "[A]ccept Claude diff" },
 		{ "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "[D]eny Claude diff" },
